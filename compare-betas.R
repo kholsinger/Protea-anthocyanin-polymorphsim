@@ -3,7 +3,7 @@ require(R2jags)
 summary <- function(x, name, n.sample, prob, digits) {
   if (bugs) {
     y <- x$sims.list[[name]]
-  } else
+  } else {
     y <- x$BUGSoutput$sims.list[[name]]
   }
   cat(name, ": ", sep="")
@@ -47,7 +47,7 @@ compare.pink.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
     name <- paste("beta.pink.", trait, sep="")
     if (bugs) {
       y <- x$sims.list[[name]]
-    } else
+    } else {
       y <- x$BUGSoutput$sims.list[[name]]
     }
     for (i in 1:4) {
