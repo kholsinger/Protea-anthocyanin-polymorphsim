@@ -4,7 +4,7 @@ rm(list=ls())
 options("width"=120)
 
 debug <- FALSE
-bugs <- FALSE
+bugs <- TRUE
 
 which.model <- "zeros-only-sig"
 
@@ -81,7 +81,11 @@ HPDvector <- function(x, name, prob) {
 }
 
 HPDintervals <- function(x, prob) {
-  x <- x$BUGSoutput$sims.list
+  if (bugs) {
+    x <- x$sims.list
+  } else {
+    x <- x$BUGSoutput$sims.list
+  }
   out <- sprintf("%2.0f%% HPD intervals\n", prob*100)
   cat(out)
   out <- sprintf("%33s  %8s %8s\n", "Coefficient", "lo", "hi")
@@ -304,258 +308,41 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "eps.seed.mass.species",
                      "tau.seed.mass")
 
-if (which.model == "full") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Full model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
+if (bugs) {
+  fit <- bugs(jags.data,
+              inits=NULL,
+              parameters=jags.parameters,
+              model.file="analysis.txt",
+              n.chains=n.chains,
+              n.burnin=n.burnin,
+              n.iter=n.iter,
+              n.thin=n.thin,
+              bugs.directory="c:/Users/Public/WinBUGS14",
+              debug=TRUE)
+} else {
+  fit <- jags(jags.data,
+              inits=NULL,
+              parameters=jags.parameters,
+              model.file="analysis.txt",
+              n.chains=n.chains,
+              n.burnin=n.burnin,
+              n.iter=n.iter,
+              n.thin=n.thin)
+}
+cat("Full model...\n")
+if (bugs) {
+  cat("   DIC: ", fit$DIC, "\n", sep="")
+  cat("    pD: ", fit$pD, "\n", sep="")
+} else {
+  cat("   DIC: ", fit$BUGSoutput$DIC, "\n", sep="")
+  cat("    pD: ", fit$BUGSoutput$pD, "\n", sep="")
+}
 
-  cat("\n\n\nFull model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
+cat("\n\n\nFull model results...")
+print(fit, digits.summary=3)
+cat("\n\n\n")
+HPDintervals(fit, prob=0.95)
 
-  cat("\n\n\n")
-  source("compare-betas.R")
-  compare(analysis.jags, prob=0.95)
-} else if (which.model == "reduced-slopes-2x") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-reduced-slopes-2x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-reduced-slopes-2x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Reduced slopes 2x model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
-
-  cat("\n\n\nReduced slopes 2x model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
-
-  cat("\n\n\n")
-  source("compare-betas.R")
-  compare(analysis.jags, prob=0.95)
-} else if (which.model == "reduced-slopes-3x") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-reduced-slopes-3x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-reduced-slopes-3x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Reduced slopes 3x model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
-
-  cat("\n\n\nReduced slopes 3x model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
-
-  cat("\n\n\n")
-  source("compare-betas.R")
-  compare(analysis.jags, prob=0.95)
-} else if (which.model == "reduced-slopes-zeros") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-reduced-slopes-zeros.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-reduced-slopes-zeros.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Reduced slopes zeros model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
-
-  cat("\n\n\nReduced slopes zeros model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
-
-  cat("\n\n\n")
-  source("compare-betas.R")
-  compare(analysis.jags, prob=0.95)
-} else if (which.model == "zeros-2x") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-zeros-2x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-zeros-2x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Zeros 2x model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
-
-  cat("\n\n\nZeros 2x model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
-} else if (which.model == "zeros-3x") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-zeros-3x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-zeros-3x.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Zeros 3x model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
-
-  cat("\n\n\nZeros 3x model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
-} else if (which.model == "zeros-only-sig") {
-  if (bugs) {
-    analysis.jags <- bugs(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-zeros-only-sig.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin,
-                          bugs.directory="c:/Users/Public/WinBUGS14",
-                          debug=TRUE)
-  } else {
-    analysis.jags <- jags(jags.data,
-                          inits=NULL,
-                          parameters=jags.parameters,
-                          model.file="analysis-zeros-only-sig.txt",
-                          n.chains=n.chains,
-                          n.burnin=n.burnin,
-                          n.iter=n.iter,
-                          n.thin=n.thin)
-  }
-  if (bugs) {
-    stop()
-  }
-  analysis.mcmc <- as.mcmc(analysis.jags)
-  cat("Zeros only-sig model...\n")
-  cat("   DIC: ", analysis.jags$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", analysis.jags$BUGSoutput$pD, "\n", sep="")
-
-  cat("\n\n\nZeros only-sig model results...")
-  print(analysis.jags, digits.summary=3)
-  cat("\n\n\n")
-  HPDintervals(analysis.jags, prob=0.95)
-} 
+cat("\n\n\n")
+source("compare-betas.R")
+compare(fit, prob=0.95)
