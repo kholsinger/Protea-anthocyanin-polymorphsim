@@ -1,0 +1,67 @@
+digraph {
+
+  percent [label="Percent pink", shape="plaintext"]
+  poly [label="Polymorphism", shape="plaintext"]
+
+  subgraph {
+    rank = same;
+    abiotic;
+    biotic;
+    covar;
+  }
+
+  /*
+   * Summary of influences
+   */
+  abiotic [label="Abiotic conditions", shape="rectangle"]
+  biotic [label="Biotic conditions", shape="rectangle"]
+  covar [label="Covariates", shape="rectangle"]
+
+  covar -> percent;
+  biotic -> percent;
+  abiotic -> percent;
+
+  covar -> poly;
+  biotic -> poly;
+  abiotic -> poly;
+
+  abiotic -> biotic;
+  covariates -> biotic;
+
+  abiotic -> covar;
+  covar -> biotic;
+
+  /*
+   * Plant covariates
+   */
+  fecundity [label="Fecundity", shape="plaintext"]
+  flowersperhead [label="Flowers per head", shape="plaintext"]
+  seedmass [label="Seed mass", shape="plaintext"]
+  flowerheadlength [label="Flower head length", shape="plaintext"]
+
+  seedmass -> covar;
+  flowersperhead -> covar;
+  fecundity -> covar;
+  flowerheadlength -> covar;
+
+
+  /*
+   * Biotic covariates
+   */
+  infest [label="Percent infestation", shape="plaintext"]
+
+  infest -> biotic;
+
+
+
+  /* Abiotic covariates
+   *
+   */
+  long [label="Longitude", shape="plaintext"]
+  rainfall [label="Mean annual rainfall", shape="plaintext"]
+  elev [label="Altitude", shape="plaintext"]
+
+  long -> abiotic;
+  rainfall -> abiotic;
+  elev -> abiotic;
+}
