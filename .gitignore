@@ -3,4 +3,12 @@
 .DS_Store
 
 ## Emacs files to ignore
+##
 *~
+
+## WinBUGS files to ignore
+##
+coda*
+log*
+data.txt
+script.txt

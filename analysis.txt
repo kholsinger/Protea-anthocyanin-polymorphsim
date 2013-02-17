@@ -16,7 +16,6 @@ model {
                      + beta.poly.fecundity[j,repens[i]]*fecundity[i]
                      + beta.poly.fl.per.head[j,repens[i]]*fl.per.head[i]
                      + beta.poly.seed.mass[j,repens[i]]*seed.mass[i]
-                     + beta.poly.fl.length[j,repens[i]]*fl.length[i]
                      + beta.poly.infest[j,repens[i]]*infest[i]
     }
     ## category 1 through n.cat-2
@@ -49,7 +48,6 @@ model {
                      + beta.pink.elev[j,repens[i]]*elev[i]
                      + beta.pink.fecundity[j,repens[i]]*fecundity[i]
                      + beta.pink.fl.per.head[j,repens[i]]*fl.per.head[i]
-                     + beta.pink.fl.length[j,repens[i]]*fl.length[i]
                      + beta.pink.seed.mass[j,repens[i]]*seed.mass[i]
                      + beta.pink.infest[j,repens[i]]*infest[i]
     }
@@ -82,7 +80,6 @@ model {
                     + beta.infest.fecundity[repens[i]]*fecundity[i]
                     + beta.infest.fl.per.head[repens[i]]*fl.per.head[i]
                     + beta.infest.seed.mass[repens[i]]*seed.mass[i]
-                    + beta.infest.fl.length[repens[i]]*fl.per.head[i]
                     + eps.infest.species[species[i]]
   }
 
@@ -104,11 +101,6 @@ model {
                         + beta.seed.mass.map[repens[i]]*elev[i]
                         + beta.seed.mass.elev[repens[i]]*long[i]
                         + eps.seed.mass.species[species[i]]
-    fl.length[i] ~ dnorm(mu.fl.length[i], tau.fl.length)
-    mu.fl.length[i] <-  beta.fl.length.long[repens[i]]*map[i]
-                        + beta.fl.length.map[repens[i]]*elev[i]
-                        + beta.fl.length.elev[repens[i]]*long[i]
-                        + eps.fl.length.species[species[i]]
   }
 
   ## priors for adjacent-categories logit
@@ -117,7 +109,6 @@ model {
     for (j in 1:(n.poly.cat-1)) {
       beta.poly.elev[j,i] ~ dnorm(alpha.poly.elev, tau.beta)
       beta.poly.fecundity[j,i] ~ dnorm(alpha.poly.fecundity, tau.beta)
-      beta.poly.fl.length[j,i] ~ dnorm(alpha.poly.fl.length, tau.beta)
       beta.poly.fl.per.head[j,i] ~ dnorm(alpha.poly.fl.per.head, tau.beta)
       beta.poly.infest[j,i] ~ dnorm(alpha.poly.infest, tau.beta)
       beta.poly.long[j,i] ~ dnorm(alpha.poly.long, tau.beta)
@@ -132,7 +123,6 @@ model {
   }
   alpha.poly.elev ~ dnorm(0.0, tau.beta)
   alpha.poly.fecundity ~ dnorm(0.0, tau.beta)
-  alpha.poly.fl.length ~ dnorm(0.0, tau.beta)
   alpha.poly.fl.per.head ~ dnorm(0.0, tau.beta)
   alpha.poly.infest ~ dnorm(0.0, tau.beta)
   alpha.poly.long ~ dnorm(0.0, tau.beta)
@@ -149,7 +139,6 @@ model {
       beta.pink.elev[j,i] ~ dnorm(alpha.pink.elev, tau.beta)
       beta.pink.fecundity[j,i] ~ dnorm(alpha.pink.fecundity, tau.beta)
       beta.pink.fl.per.head[j,i] ~ dnorm(alpha.pink.fl.per.head, tau.beta)
-      beta.pink.fl.length[j,i] ~ dnorm(alpha.pink.fl.length, tau.beta)
       beta.pink.infest[j,i] ~ dnorm(alpha.pink.infest, tau.beta)
       beta.pink.long[j,i] ~ dnorm(alpha.pink.long, tau.beta)
       beta.pink.map[j,i] ~ dnorm(alpha.pink.map, tau.beta)
@@ -163,7 +152,6 @@ model {
   }
   alpha.pink.elev ~ dnorm(0.0, tau.beta)
   alpha.pink.fecundity ~ dnorm(0.0, tau.beta)
-  alpha.pink.fl.length ~ dnorm(0.0, tau.beta)
   alpha.pink.fl.per.head ~ dnorm(0.0, tau.beta)
   alpha.pink.infest ~ dnorm(0.0, tau.beta)
   alpha.pink.long ~ dnorm(0.0, tau.beta)
@@ -178,7 +166,6 @@ model {
   for (i in 1:2) {
     beta.infest.fecundity[i] ~ dnorm(0.0, tau.beta)
     beta.infest.fl.per.head[i] ~ dnorm(0.0, tau.beta)
-    beta.infest.fl.length[i] ~ dnorm(0.0, tau.beta)
     beta.infest.seed.mass[i] ~ dnorm(0.0, tau.beta)
     beta.infest.long[i] ~ dnorm(0.0, tau.beta)
     beta.infest.map[i] ~ dnorm(0.0, tau.beta)
@@ -209,15 +196,6 @@ model {
     eps.fl.per.head.species[i] ~ dnorm(0.0, tau.species)
   }
   tau.fl.per.head ~ dgamma(0.1, 0.1)
-  for (i in 1:2) {
-    beta.fl.length.long[i] ~ dnorm(0.0, tau.beta)
-    beta.fl.length.map[i] ~ dnorm(0.0, tau.beta)
-    beta.fl.length.elev[i] ~ dnorm(0.0, tau.beta)
-  }
-  for (i in 1:n.species) {
-    eps.fl.length.species[i] ~ dnorm(0.0, tau.species)
-  }
-  tau.fl.length ~ dgamma(0.1, 0.1)
   for (i in 1:2) {
     beta.seed.mass.long[i] ~ dnorm(0.0, tau.beta)
     beta.seed.mass.map[i] ~ dnorm(0.0, tau.beta)

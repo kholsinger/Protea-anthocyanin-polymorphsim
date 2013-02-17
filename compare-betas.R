@@ -22,7 +22,7 @@ summary <- function(x, name, n.sample, prob, digits) {
 
 compare.env.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
   env <- c("elev", "long", "map")
-  cov <- c("fecundity", "fl.length", "fl.per.head", "seed.mass")
+  cov <- c("fecundity", "fl.per.head", "seed.mass")
   for (trait in cov) {
     for (e in env) {
       name <- paste("beta.", trait, ".", e, sep="")
@@ -32,7 +32,7 @@ compare.env.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
 }
 
 compare.infest.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
-  cov <- c("elev", "fecundity", "fl.length", "fl.per.head", "long", "map",
+  cov <- c("elev", "fecundity", "fl.per.head", "long", "map",
            "seed.mass")
   for (trait in cov) {
     name <- paste("beta.infest.", trait, sep="")
@@ -41,7 +41,7 @@ compare.infest.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
 }
 
 compare.pink.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
-  cov <- c("elev", "fecundity", "fl.length", "fl.per.head", "infest", "long",
+  cov <- c("elev", "fecundity", "fl.per.head", "infest", "long",
            "map", "seed.mass")
   for (trait in cov) {
     name <- paste("beta.pink.", trait, sep="")
@@ -68,7 +68,7 @@ compare.pink.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
 }
 
 compare.poly.coefficients <- function(x, n.sample, prob=0.95, digits=3) {
-  cov <- c("elev", "fecundity", "fl.length", "fl.per.head", "infest", "long",
+  cov <- c("elev", "fecundity", "fl.per.head", "infest", "long",
            "map", "seed.mass")
   for (trait in cov) {
     name <- paste("beta.poly.", trait, sep="")

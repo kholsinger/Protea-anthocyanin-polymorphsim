@@ -23,6 +23,11 @@ if (debug) {
   n.thin <- 5
 }
 
+drop.levels <- function(dat) {
+  dat[] <- lapply(dat, function(x) x[,drop=TRUE])
+  return(dat)
+}
+
 diversity.to.poly <- function(x) {
   y <- 2*x + 1
   y
@@ -98,18 +103,15 @@ HPDintervals <- function(x, prob) {
   for (name in names(x)) {
     if (name %in% c("alpha.poly.0", "alpha.pink.0",
                     "eps.fecundity.species", "eps.fl.per.head.species",
-                    "eps.fl.length",
                     "eps.infest.species", "eps.seed.mass.species"))
     {
       HPDvector(x, name, prob)
     } else if (name %in% c("beta.poly.elev", "beta.poly.fecundity",
                            "beta.poly.fl.per.head", "beta.poly.infest",
-                           "beta.poly.fl.length",
                            "beta.poly.long", "beta.poly.map",
                            "beta.poly.seed.mass", "beta.poly.0",
                            "beta.pink.elev", "beta.pink.fecundity",
                            "beta.pink.fl.per.head", "beta.pink.infest",
-                           "beta.pink.fl.length",
                            "beta.pink.long", "beta.pink.map",
                            "beta.pink.seed.mass", "beta.pink.0"))
     {
@@ -125,8 +127,6 @@ HPDintervals <- function(x, prob) {
     } else if (name %in% c("beta.fecundity.elev", "beta.fecundity.long",
                            "beta.fecundity.map", "beta.fl.per.head.elev",
                            "beta.fl.per.head.long", "beta.fl.per.head.map",
-                           "beta.fl.length.elev", "beta.fl.length.long",
-                           "beta.fl.length.map",
                            "beta.infest.elev", "beta.infest.fecundity",
                            "beta.infest.fl.per.head", "beta.infest.long",
                            "beta.infest.map", "beta.infest.seed.mass",
@@ -150,12 +150,13 @@ HPDintervals <- function(x, prob) {
 ## read in data
 ##
 color.csv <- read.csv("color.csv", header=TRUE, na.strings=".")
+color.csv <- subset(color.csv, species!="subvestita")
+color.csv <- drop.levels(color.csv)
 
 species <- color.csv$species
 site <- color.csv$site
 fecundity <- color.csv$seeds_per_SH
 fl.per.head <- color.csv$flowers_per_head
-fl.length <- color.csv$dry_length
 seed.mass <- color.csv$seed_mass
 infest <- color.csv$prop_infested_per_plant
 long <- color.csv$long
@@ -170,7 +171,6 @@ color <- data.frame(species=species,
                     site=site,
                     fecundity=fecundity,
                     fl.per.head=fl.per.head,
-                    fl.length=fl.length,
                     seed.mass=seed.mass,
                     infest=infest,
                     long=long,
@@ -178,12 +178,12 @@ color <- data.frame(species=species,
                     elev=elev,
                     poly=poly,
                     pink=pink)
-rm(species, repens, site, fecundity, fl.per.head, fl.length, seed.mass,
+rm(species, repens, site, fecundity, fl.per.head, seed.mass,
    infest, long, map, elev, poly, pink)
 
 ## exclude sites lacking fecundity, fl.per.head, seed.mass, or infest
 ##
-traits <- c("fecundity", "fl.per.head", "seed.mass", "infest", "fl.length")
+traits <- c("fecundity", "fl.per.head", "seed.mass", "infest")
 color <- color[!is.na(apply(color[,traits], 1, sum)),]
 ## exclude sites lacking poly
 ##
@@ -210,7 +210,6 @@ color <- rescale(color)
 ##
 fecundity <- as.numeric(color$fecundity)
 fl.per.head <- as.numeric(color$fl.per.head)
-fl.length <- as.numeric(color$fl.length)
 seed.mass <- as.numeric(color$seed.mass)
 infest <- as.numeric(color$infest)
 long <- as.numeric(color$long)
@@ -227,7 +226,6 @@ tau.species <- 0.1
 
 jags.data <- c("fecundity",
                "fl.per.head",
-               "fl.length",
                "seed.mass",
                "infest",
                "long",
@@ -245,7 +243,6 @@ jags.data <- c("fecundity",
                "tau.species")
 jags.parameters <- c("alpha.poly.fecundity",
                      "alpha.poly.fl.per.head",
-                     "alpha.poly.fl.length",
                      "alpha.poly.seed.mass",
                      "alpha.poly.infest",
                      "alpha.poly.long",
@@ -254,7 +251,6 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "alpha.poly.0",
                      "alpha.pink.fecundity",
                      "alpha.pink.fl.per.head",
-                     "alpha.pink.fl.length",
                      "alpha.pink.seed.mass",
                      "alpha.pink.infest",
                      "alpha.pink.long",
@@ -263,7 +259,6 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "alpha.pink.0",
                      "beta.poly.fecundity",
                      "beta.poly.fl.per.head",
-                     "beta.poly.fl.length",
                      "beta.poly.seed.mass",
                      "beta.poly.infest",
                      "beta.poly.long",
@@ -272,7 +267,6 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "beta.poly.0",
                      "beta.pink.fecundity",
                      "beta.pink.fl.per.head",
-                     "beta.pink.fl.length",
                      "beta.pink.seed.mass",
                      "beta.pink.infest",
                      "beta.pink.long",
@@ -281,7 +275,6 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "beta.pink.0",
                      "beta.infest.fecundity",
                      "beta.infest.fl.per.head",
-                     "beta.infest.fl.length",
                      "beta.infest.seed.mass",
                      "beta.infest.long",
                      "beta.infest.map",
@@ -297,11 +290,6 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "beta.fl.per.head.elev",
                      "eps.fl.per.head.species",
                      "tau.fl.per.head",
-                     "beta.fl.length.long",
-                     "beta.fl.length.map",
-                     "beta.fl.length.elev",
-                     "eps.fl.length.species",
-                     "tau.fl.length",
                      "beta.seed.mass.long",
                      "beta.seed.mass.map",
                      "beta.seed.mass.elev",
@@ -318,7 +306,8 @@ if (bugs) {
               n.iter=n.iter,
               n.thin=n.thin,
               bugs.directory="c:/Users/Public/WinBUGS14",
-              debug=TRUE)
+              working.directory=".",
+              debug=debug)
 } else {
   fit <- jags(jags.data,
               inits=NULL,
