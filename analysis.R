@@ -6,7 +6,7 @@ options("width"=120)
 debug <- FALSE
 bugs <- TRUE
 
-which.model <- "zeros-only-sig"
+model.file <- "analysis-alt.txt"
 
 n.poly.cat <- 3
 n.pink.cat <- 5
@@ -300,7 +300,7 @@ if (bugs) {
   fit <- bugs(jags.data,
               inits=NULL,
               parameters=jags.parameters,
-              model.file="analysis.txt",
+              model.file=model.file,
               n.chains=n.chains,
               n.burnin=n.burnin,
               n.iter=n.iter,
@@ -312,7 +312,7 @@ if (bugs) {
   fit <- jags(jags.data,
               inits=NULL,
               parameters=jags.parameters,
-              model.file="analysis.txt",
+              model.file=model.file,
               n.chains=n.chains,
               n.burnin=n.burnin,
               n.iter=n.iter,
