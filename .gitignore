@@ -12,3 +12,12 @@ coda*
 log*
 data.txt
 script.txt
+
+## R files to ignore
+##
+*.Rsave
+
+## Miscellaneous files to ignore
+##
+*.pdf
+

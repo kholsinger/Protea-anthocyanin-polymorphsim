@@ -1,0 +1,7 @@
+Full   
+* separate slopes for whites and repens
+* in results-full.txt
+No-repens
+* sampe slopes for whites and repens
+* in results-no-repens.txt
+

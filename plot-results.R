@@ -1,6 +1,15 @@
 require(plotrix)
 
-plot.prediction <- function(b.0, b.1, min, max, label, varname) {
+get.xaxlab <- function(min, max, x) {
+  val <- min + (max - min)*x
+  lab <- as.character(signif(val[1], digits=2))
+  for (i in 2:length(x)) {
+    lab <- c(lab, as.character(signif(val[i], digits=2)))
+  }
+  lab
+}
+
+plot.prediction <- function(b.0, b.1, min, max, min.unscaled, max.unscaled, label, varname) {
   ## set up matrices
   ##
   n.cat <- length(b.0) + 1
@@ -54,23 +63,13 @@ plot.prediction <- function(b.0, b.1, min, max, label, varname) {
 
   cum <- data.frame(t(cum))
   xat <- seq(from=n.pts/4, to=3*n.pts/4, by=n.pts/4)
-  if (label == "lacticolor") {
-    main.label <- paste(varname, "\n\n", label, sep="")
-  } else {
-    main.label <- label
-  }
-  if (n.cat==3) {
-    val <- seq(from=5, to=255, by=250/(n.cat))/255
-    stackpoly(cum, col=rgb(val, val, val), axis4=FALSE, main=main.label,
-              xat=xat)
-  } else {
-    colors <- rgb(red=c(255, 255, 255, 255, 255),
-                  green=c(255, 207, 159, 111, 63),
-                  blue=c(255, 207, 159, 111, 63),
-                  maxColorValue=255)
-    stackpoly(cum, col=colors, axis4=FALSE, main=main.label,
-              xat=xat)
-  }
+  xaxlab <- get.xaxlab(min.unscaled, max.unscaled, c(0.25, 0.50, 0.75))
+  colors <- rgb(red=c(255, 255, 255, 255, 255),
+                green=c(255, 207, 159, 111, 63),
+                blue=c(255, 207, 159, 111, 63),
+                maxColorValue=255)
+  stackpoly(cum, col=colors, axis4=FALSE, main=label,
+            xat=xat, xaxlab=xaxlab)
 }
 
 extract.pink.coefficients <- function(x) {
@@ -88,8 +87,8 @@ extract.pink.coefficients <- function(x) {
 }
 
 plot.var <- function(x, var) {
-  par(mfrow=c(2,3))
-  for (i in 1:5) {
+  old <- par(mfrow=c(2,2))
+  for (i in 1:4) {
     species.label <- as.character(with(species.table, species[number==i]))
     ## set repens/non-repens idx
     ##
@@ -99,17 +98,22 @@ plot.var <- function(x, var) {
         idx <- 1
     }
     flush.console()
-    x.var <- paste("beta.", v, sep="")
+    x.var <- paste("beta.", var, sep="")
     y <- x[[x.var]]
     plot.prediction(apply(x$beta.0[,,i], 2, mean),
                     apply(y[,,idx], 2, mean),
                     min(as.numeric(color[[var]])),
                     max(as.numeric(color[[var]])),
+                    min(unscaled[[var]]),
+                    max(unscaled[[var]]),
                     species.label,
                     var)
   }
+  par(old)
 }
 
+## x - an object returned by R2jags
+##
 plot.results <- function(x) {
   var <- c("elev",
            "fecundity",
@@ -118,7 +122,10 @@ plot.results <- function(x) {
            "long",
            "seed.mass")
   for (v in var) {
-    dev.new()
-    plot.var(x, v)
+    ## dev.new()
+    ## plot.var(extract.pink.coefficients(x), v)
+    pdf(file=paste(v, ".pdf", sep=""))
+    plot.var(extract.pink.coefficients(x), v)
+    dev.off()
   }
 }

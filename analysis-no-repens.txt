@@ -1,0 +1,225 @@
+model {
+  ## adjacent-categories logits
+  ## final category as baseline
+  ##
+  for (i in 1:n.obs) {
+    ## polymorphism response
+    ##
+    poly[i] ~ dcat(pi.poly[i,])
+    ## adjacent categories
+    ##
+    for (j in 1:(n.poly.cat-1)) {
+      L.poly[i,j] <- beta.poly.0[j,species[i]]
+                     + beta.poly.long[j,repens[i]]*long[i]
+                     + beta.poly.map[j,repens[i]]*map[i]
+                     + beta.poly.elev[j,repens[i]]*elev[i]
+                     + beta.poly.fecundity[j,repens[i]]*fecundity[i]
+                     + beta.poly.fl.per.head[j,repens[i]]*fl.per.head[i]
+                     + beta.poly.seed.mass[j,repens[i]]*seed.mass[i]
+                     + beta.poly.infest[j,repens[i]]*infest[i]
+    }
+    ## category 1 through n.cat-2
+    ##
+    for (j in 1:(n.poly.cat-1)) {
+      L.poly.star[i,j] <- sum(L.poly[i,j:(n.poly.cat-1)])
+    }
+    ## exponentiate L.star
+    ##
+    for (j in 1:(n.poly.cat-1)) {
+      phi.poly[i,j] <- exp(L.poly.star[i,j])
+    }
+    phi.poly[i,n.poly.cat] <- 1.0
+    ## convert to probabilities
+    ##
+    sum.phi.poly[i] <- sum(phi.poly[i,])
+    for (j in 1:n.poly.cat) {
+      pi.poly[i,j] <- phi.poly[i,j]/sum.phi.poly[i]
+    }
+
+    ## percent pink response
+    ##
+    pink[i] ~ dcat(pi.pink[i,])
+    ## adjacent categories
+    ##
+    for (j in 1:(n.pink.cat-1)) {
+      L.pink[i,j] <- beta.pink.0[j,species[i]]
+                     + beta.pink.long[j,repens[i]]*long[i]
+                     + beta.pink.map[j,repens[i]]*map[i]
+                     + beta.pink.elev[j,repens[i]]*elev[i]
+                     + beta.pink.fecundity[j,repens[i]]*fecundity[i]
+                     + beta.pink.fl.per.head[j,repens[i]]*fl.per.head[i]
+                     + beta.pink.seed.mass[j,repens[i]]*seed.mass[i]
+                     + beta.pink.infest[j,repens[i]]*infest[i]
+    }
+    ## category 1 through n.cat-2
+    ##
+    for (j in 1:(n.pink.cat-1)) {
+      L.pink.star[i,j] <- sum(L.pink[i,j:(n.pink.cat-1)])
+    }
+    ## exponentiate L.star
+    ##
+    for (j in 1:(n.pink.cat-1)) {
+      phi.pink[i,j] <- exp(L.pink.star[i,j])
+    }
+    phi.pink[i,n.pink.cat] <- 1.0
+    ## convert to probabilities
+    ##
+    sum.phi.pink[i] <- sum(phi.pink[i,])
+    for (j in 1:n.pink.cat) {
+      pi.pink[i,j] <- phi.pink[i,j]/sum.phi.pink[i]
+    }
+  }
+
+  ## infestation regressed on abiotic conditions and covariates
+  ##
+  for (i in 1:n.obs) {
+    infest[i] ~ dnorm(mu.infest[i], tau.infest)
+    mu.infest[i] <- beta.infest.long[repens[i]]*long[i]
+                    + beta.infest.map[repens[i]]*map[i]
+                    + beta.infest.elev[repens[i]]*elev[i]
+                    + beta.infest.fecundity[repens[i]]*fecundity[i]
+                    + beta.infest.fl.per.head[repens[i]]*fl.per.head[i]
+                    + beta.infest.seed.mass[repens[i]]*seed.mass[i]
+                    + eps.infest.species[species[i]]
+  }
+
+  ## covariates regressed on abiotic conditions
+  ##
+  for (i in 1:n.obs) {
+    fecundity[i] ~ dnorm(mu.fecundity[i], tau.fecundity)
+    mu.fecundity[i] <-  beta.fecundity.long[repens[i]]*map[i]
+                        + beta.fecundity.map[repens[i]]*elev[i]
+                        + beta.fecundity.elev[repens[i]]*long[i]
+                        + eps.fecundity.species[species[i]]
+    fl.per.head[i] ~ dnorm(mu.fl.per.head[i], tau.fl.per.head)
+    mu.fl.per.head[i] <-  beta.fl.per.head.long[repens[i]]*map[i]
+                          + beta.fl.per.head.map[repens[i]]*elev[i]
+                          + beta.fl.per.head.elev[repens[i]]*long[i]
+                          + eps.fl.per.head.species[species[i]]
+    seed.mass[i] ~ dnorm(mu.seed.mass[i], tau.seed.mass)
+    mu.seed.mass[i] <-  beta.seed.mass.long[repens[i]]*map[i]
+                        + beta.seed.mass.map[repens[i]]*elev[i]
+                        + beta.seed.mass.elev[repens[i]]*long[i]
+                        + eps.seed.mass.species[species[i]]
+  }
+
+  ## priors for adjacent-categories logit
+  ##
+  for (j in 1:(n.poly.cat-1)) {
+    beta.poly.elev[j,1] ~ dnorm(alpha.poly.elev, tau.beta)
+    beta.poly.fecundity[j,1] ~ dnorm(alpha.poly.fecundity, tau.beta)
+    beta.poly.fl.per.head[j,1] ~ dnorm(alpha.poly.fl.per.head, tau.beta)
+    beta.poly.infest[j,1] ~ dnorm(alpha.poly.infest, tau.beta)
+    beta.poly.long[j,1] ~ dnorm(alpha.poly.long, tau.beta)
+    beta.poly.map[j,1] ~ dnorm(alpha.poly.map, tau.beta)
+    beta.poly.seed.mass[j,1] ~ dnorm(alpha.poly.seed.mass, tau.beta)
+    beta.poly.elev[j,2] <- beta.poly.elev[j,1]
+    beta.poly.fecundity[j,2] <- beta.poly.fecundity[j,1]
+    beta.poly.fl.per.head[j,2] <- beta.poly.fl.per.head[j,1]
+    beta.poly.infest[j,2] <- beta.poly.infest[j,1]
+    beta.poly.long[j,2] <- beta.poly.long[j,1]
+    beta.poly.map[j,2] <- beta.poly.map[j,1]
+    beta.poly.seed.mass[j,2] <- beta.poly.seed.mass[j,1]
+  }
+  for (i in 1:(n.poly.cat-1)) {
+    for (j in 1:n.species) {
+      beta.poly.0[i,j] ~ dnorm(alpha.poly.0[i], tau.species)
+    }
+  }
+  alpha.poly.elev ~ dnorm(0.0, tau.beta)
+  alpha.poly.fecundity ~ dnorm(0.0, tau.beta)
+  alpha.poly.fl.per.head ~ dnorm(0.0, tau.beta)
+  alpha.poly.infest ~ dnorm(0.0, tau.beta)
+  alpha.poly.long ~ dnorm(0.0, tau.beta)
+  alpha.poly.map ~ dnorm(0.0, tau.beta)
+  alpha.poly.seed.mass ~ dnorm(0.0, tau.beta)
+  for (j in 1:(n.poly.cat-1)) {
+    alpha.poly.0[j] ~ dnorm(0.0, tau.species)
+  }
+
+  ## priors for adjacent-categories logit
+  ##
+  for (j in 1:(n.pink.cat-1)) {
+    beta.pink.elev[j,1] ~ dnorm(alpha.pink.elev, tau.beta)
+    beta.pink.fecundity[j,1] ~ dnorm(alpha.pink.fecundity, tau.beta)
+    beta.pink.fl.per.head[j,1] ~ dnorm(alpha.pink.fl.per.head, tau.beta)
+    beta.pink.infest[j,1] ~ dnorm(alpha.pink.infest, tau.beta)
+    beta.pink.long[j,1] ~ dnorm(alpha.pink.long, tau.beta)
+    beta.pink.map[j,1] ~ dnorm(alpha.pink.map, tau.beta)
+    beta.pink.seed.mass[j,1] ~ dnorm(alpha.pink.seed.mass, tau.beta)
+    beta.pink.elev[j,2] <- beta.pink.elev[j,1]
+    beta.pink.fecundity[j,2] <- beta.pink.fecundity[j,1]
+    beta.pink.fl.per.head[j,2] <- beta.pink.fl.per.head[j,1]
+    beta.pink.infest[j,2] <- beta.pink.infest[j,1]
+    beta.pink.long[j,2] <- beta.pink.long[j,1]
+    beta.pink.map[j,2] <- beta.pink.map[j,1]
+    beta.pink.seed.mass[j,2] <- beta.pink.seed.mass[j,1]
+  }
+  for (i in 1:(n.pink.cat-1)) {
+    for (j in 1:n.species) {
+      beta.pink.0[i,j] ~ dnorm(alpha.pink.0[i], tau.species)
+    }
+  }
+  alpha.pink.elev ~ dnorm(0.0, tau.beta)
+  alpha.pink.fecundity ~ dnorm(0.0, tau.beta)
+  alpha.pink.fl.per.head ~ dnorm(0.0, tau.beta)
+  alpha.pink.infest ~ dnorm(0.0, tau.beta)
+  alpha.pink.long ~ dnorm(0.0, tau.beta)
+  alpha.pink.map ~ dnorm(0.0, tau.beta)
+  alpha.pink.seed.mass ~ dnorm(0.0, tau.beta)
+  for (j in 1:(n.pink.cat-1)) {
+    alpha.pink.0[j] ~ dnorm(0.0, tau.species)
+  }
+
+  ## priors for infestation regression
+  ##
+  beta.infest.fecundity[1] ~ dnorm(0.0, tau.beta)
+  beta.infest.fl.per.head[1] ~ dnorm(0.0, tau.beta)
+  beta.infest.seed.mass[1] ~ dnorm(0.0, tau.beta)
+  beta.infest.long[1] ~ dnorm(0.0, tau.beta)
+  beta.infest.map[1] ~ dnorm(0.0, tau.beta)
+  beta.infest.elev[1] ~ dnorm(0.0, tau.beta)
+  beta.infest.fecundity[2] <- beta.infest.fecundity[1]
+  beta.infest.fl.per.head[2] <- beta.infest.fl.per.head[1]
+  beta.infest.seed.mass[2] <- beta.infest.seed.mass[1]
+  beta.infest.long[2] <- beta.infest.long[1]
+  beta.infest.map[2] <- beta.infest.map[1]
+  beta.infest.elev[2] <- beta.infest.elev[1]
+  for (i in 1:n.species) {
+    eps.infest.species[i] ~ dnorm(0.0, tau.species)
+  }
+  tau.infest ~ dgamma(0.1, 0.1)
+
+  ## priors for covariate regressions
+  ##
+  beta.fecundity.long[1] ~ dnorm(0.0, tau.beta)
+  beta.fecundity.map[1] ~ dnorm(0.0, tau.beta)
+  beta.fecundity.elev[1] ~ dnorm(0.0, tau.beta)
+  beta.fecundity.long[2] <- beta.fecundity.long[1]
+  beta.fecundity.map[2] <- beta.fecundity.map[1]
+  beta.fecundity.elev[2] <- beta.fecundity.elev[1]
+  for (i in 1:n.species) {
+    eps.fecundity.species[i] ~ dnorm(0.0, tau.species)
+  }
+  tau.fecundity ~ dgamma(0.1, 0.1)
+  beta.fl.per.head.long[1] ~ dnorm(0.0, tau.beta)
+  beta.fl.per.head.map[1] ~ dnorm(0.0, tau.beta)
+  beta.fl.per.head.elev[1] ~ dnorm(0.0, tau.beta)
+  beta.fl.per.head.long[2] <- beta.fl.per.head.long[1]
+  beta.fl.per.head.map[2] <- beta.fl.per.head.map[1]
+  beta.fl.per.head.elev[2] <- beta.fl.per.head.elev[1]
+  for (i in 1:n.species) {
+    eps.fl.per.head.species[i] ~ dnorm(0.0, tau.species)
+  }
+  tau.fl.per.head ~ dgamma(0.1, 0.1)
+  beta.seed.mass.long[1] ~ dnorm(0.0, tau.beta)
+  beta.seed.mass.map[1] ~ dnorm(0.0, tau.beta)
+  beta.seed.mass.elev[1] ~ dnorm(0.0, tau.beta)
+  beta.seed.mass.long[2] <- beta.seed.mass.long[1]
+  beta.seed.mass.map[2] <- beta.seed.mass.map[1]
+  beta.seed.mass.elev[2] <- beta.seed.mass.elev[1]
+  for (i in 1:n.species) {
+    eps.seed.mass.species[i] ~ dnorm(0.0, tau.species)
+  }
+  tau.seed.mass ~ dgamma(0.1, 0.1)
+}

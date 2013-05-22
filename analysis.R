@@ -4,9 +4,9 @@ rm(list=ls())
 options("width"=120)
 
 debug <- FALSE
-bugs <- TRUE
+bugs <- FALSE
 
-model.file <- "analysis-alt.txt"
+model.file <- "analysis-no-repens.txt"
 
 n.poly.cat <- 3
 n.pink.cat <- 5
@@ -203,7 +203,17 @@ repens <- color$repens
 poly <- color$poly
 pink <- color$pink
 
+## save unscaled variates
+##
+unscaled <- data.frame(elev=color$elev,
+                       fecundity=color$fecundity,
+                       fl.per.head=color$fl.per.head,
+                       infest=color$infest,
+                       long=color$long,
+                       seed.mass=color$seed.mass)
+
 ## rescale covariates
+##
 color <- rescale(color)
 
 ## get rid of scaled attributes from rescaling
@@ -335,3 +345,6 @@ HPDintervals(fit, prob=0.95)
 cat("\n\n\n")
 source("compare-betas.R")
 compare(fit, prob=0.95)
+
+rsave <- paste(sub(".txt", "", model.file), ".Rsave", sep="")
+save(fit, species.table, color, unscaled, file=rsave)
