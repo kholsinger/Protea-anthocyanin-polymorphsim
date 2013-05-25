@@ -16,6 +16,7 @@ script.txt
 ## R files to ignore
 ##
 *.Rsave
+.Rapp.history
 
 ## Miscellaneous files to ignore
 ##

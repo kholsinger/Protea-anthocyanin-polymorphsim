@@ -1,32 +1,33 @@
 require(plotrix)
 
-get.xaxlab <- function(min, max, x) {
-  val <- min + (max - min)*x
-  lab <- as.character(signif(val[1], digits=2))
-  for (i in 2:length(x)) {
-    lab <- c(lab, as.character(signif(val[i], digits=2)))
-  }
-  lab
-}
-
-plot.prediction <- function(b.0, b.1, min, max, min.unscaled, max.unscaled, label, varname) {
-  ## set up matrices
+get.probabilities <- function(work, beta, var, x) {
+  ## set up the necessary matrices and vectors
   ##
-  n.cat <- length(b.0) + 1
-  n.pts <- 1000
-  x <- seq(from=min, to=max, by=(max-min)/n.pts)
+  n.cat <- nrow(beta) + 1
   l <- matrix(nrow=n.cat-1, ncol=length(x))
   l.star <- matrix(nrow=n.cat-1, ncol=length(x))
   phi <- matrix(nrow=n.cat, ncol=length(x))
   pi <- matrix(nrow=n.cat, ncol=length(x))
   cum <- matrix(nrow=n.cat, ncol=length(x))
+  b.0 <- numeric(n.cat-1)
+  b.1 <- numeric(n.cat-1)
 
   ## calculate probabilities
   ##
-  ## rows are categories
-  ## columns are level of covariate
+  ## rows (i) are categories
+  ## columns (j) are level of covariate being plotted
   ##
   for (i in 1:(n.cat-1)) {
+    b.0 <- 0.0
+    for (v in c("fecundity", "fl.per.head", "infest", "map", "elev", "long",
+                "seed.mass")) {
+      beta.var <- paste("beta.", v, sep="")
+      if (v == var) {
+        b.1[i] <- beta[[beta.var]][i]
+      } else {
+        b.0[i] <- beta[[beta.var]][i]*work[[var]]
+      }
+    }
     for (j in 1:length(x)) {
       l[i,j] <- b.0[i] + b.1[i]*x[j]
     }
@@ -53,6 +54,52 @@ plot.prediction <- function(b.0, b.1, min, max, min.unscaled, max.unscaled, labe
       cum[i,j] <- pi[i,j] + cum[i-1,j]
     }
   }
+
+  ## return cumulative probabilities
+  ##
+  cum
+}
+
+get.xaxlab <- function(min, max, x) {
+  val <- min + (max - min)*x
+  lab <- as.character(signif(val[1], digits=2))
+  for (i in 2:length(x)) {
+    lab <- c(lab, as.character(signif(val[i], digits=2)))
+  }
+  lab
+}
+
+plot.prediction <- function(beta, species, var) {
+  ## set minima and maxima for plots
+  ##
+  min <- min(as.numeric(color[[var]]))
+  max <- max(as.numeric(color[[var]]))
+  min.unscaled <- min(unscaled[[var]])
+  max.unscaled <- max(unscaled[[var]])
+  ## set up covariate to plot
+  ##
+  n.cat <- nrow(beta) + 1
+  n.pts <- 1000
+  x <- seq(from=min, to=max, by=(max-min)/n.pts)
+
+  ## get site-specific covariates for species
+  ##
+  work <- color[color$species==species,]
+  
+  ## calculate cumulative probabilities for each site
+  ##
+  cum.k <- array(dim=c(nrow(work), n.cat, length(x)))
+  for (k in 1:nrow(work)) {
+    cum.k[k,,] <- get.probabilities(work[k,], beta, var, x)
+  }
+  ## average across sites
+  cum <- matrix(nrow=n.cat, ncol=length(x))
+  for (i in 1:n.cat) {
+    for(j in 1:length(x)) {
+      cum[i,j] <- mean(cum.k[,i,j])
+    }
+  }
+
   if (n.cat==5) {
     rownames(cum) <- c("white", "skewed white", "even", "skewed pink",
                        "pink")
@@ -68,8 +115,8 @@ plot.prediction <- function(b.0, b.1, min, max, min.unscaled, max.unscaled, labe
                 green=c(255, 207, 159, 111, 63),
                 blue=c(255, 207, 159, 111, 63),
                 maxColorValue=255)
-  stackpoly(cum, col=colors, axis4=FALSE, main=label,
-            xat=xat, xaxlab=xaxlab)
+  stackpoly(cum, col=colors, axis4=FALSE, main=species,
+            xat=xat, xaxlab=xaxlab, xlab=var)
 }
 
 extract.pink.coefficients <- function(x) {
@@ -97,15 +144,15 @@ plot.var <- function(x, var) {
     } else {
         idx <- 1
     }
-    flush.console()
-    x.var <- paste("beta.", var, sep="")
-    y <- x[[x.var]]
-    plot.prediction(apply(x$beta.0[,,i], 2, mean),
-                    apply(y[,,idx], 2, mean),
-                    min(as.numeric(color[[var]])),
-                    max(as.numeric(color[[var]])),
-                    min(unscaled[[var]]),
-                    max(unscaled[[var]]),
+    beta <- data.frame(beta.0=apply(x$beta.0[,,i], 2, mean),
+                       beta.fecundity=apply(x$beta.fecundity[,,idx], 2, mean),
+                       beta.fl.per.head=apply(x$beta.fl.per.head[,,idx], 2, mean),
+                       beta.infest=apply(x$beta.infest[,,idx], 2, mean),
+                       beta.map=apply(x$beta.map[,,idx], 2, mean),
+                       beta.elev=apply(x$beta.elev[,,idx], 2, mean),
+                       beta.long=apply(x$beta.long[,,idx], 2, mean),
+                       beta.seed.mass=apply(x$beta.seed.mass[,,idx], 2, mean))
+    plot.prediction(beta,
                     species.label,
                     var)
   }
