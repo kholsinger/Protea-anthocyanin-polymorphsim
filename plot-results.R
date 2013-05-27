@@ -18,7 +18,7 @@ get.probabilities <- function(work, beta, var, x) {
   ## columns (j) are level of covariate being plotted
   ##
   for (i in 1:(n.cat-1)) {
-    b.0 <- 0.0
+    b.0 <- beta$beta.0[i]
     for (v in c("fecundity", "fl.per.head", "infest", "map", "elev", "long",
                 "seed.mass")) {
       beta.var <- paste("beta.", v, sep="")
@@ -167,6 +167,7 @@ plot.results <- function(x) {
            "fl.per.head",
            "infest",
            "long",
+           "map",
            "seed.mass")
   for (v in var) {
     ## dev.new()
