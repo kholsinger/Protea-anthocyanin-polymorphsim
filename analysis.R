@@ -4,7 +4,10 @@ rm(list=ls())
 options("width"=120)
 
 debug <- FALSE
-bugs <- FALSE
+
+## to seed RNG
+##
+runif(1) 
 
 model.file <- "analysis-no-repens.txt"
 
@@ -86,11 +89,7 @@ HPDvector <- function(x, name, prob) {
 }
 
 HPDintervals <- function(x, prob) {
-  if (bugs) {
-    x <- x$sims.list
-  } else {
-    x <- x$BUGSoutput$sims.list
-  }
+  x <- x$BUGSoutput$sims.list
   out <- sprintf("%2.0f%% HPD intervals\n", prob*100)
   cat(out)
   out <- sprintf("%33s  %8s %8s\n", "Coefficient", "lo", "hi")
@@ -210,7 +209,8 @@ unscaled <- data.frame(elev=color$elev,
                        fl.per.head=color$fl.per.head,
                        infest=color$infest,
                        long=color$long,
-                       seed.mass=color$seed.mass)
+                       seed.mass=color$seed.mass,
+                       map=color$map)
 
 ## rescale covariates
 ##
@@ -306,38 +306,19 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "eps.seed.mass.species",
                      "tau.seed.mass")
 
-if (bugs) {
-  fit <- bugs(jags.data,
-              inits=NULL,
-              parameters=jags.parameters,
-              model.file=model.file,
-              n.chains=n.chains,
-              n.burnin=n.burnin,
-              n.iter=n.iter,
-              n.thin=n.thin,
-              bugs.directory="c:/Users/Public/WinBUGS14",
-              working.directory=".",
-              debug=debug)
-} else {
-  fit <- jags(jags.data,
-              inits=NULL,
-              parameters=jags.parameters,
-              model.file=model.file,
-              n.chains=n.chains,
-              n.burnin=n.burnin,
-              n.iter=n.iter,
-              n.thin=n.thin)
-}
-cat("Full model...\n")
-if (bugs) {
-  cat("   DIC: ", fit$DIC, "\n", sep="")
-  cat("    pD: ", fit$pD, "\n", sep="")
-} else {
-  cat("   DIC: ", fit$BUGSoutput$DIC, "\n", sep="")
-  cat("    pD: ", fit$BUGSoutput$pD, "\n", sep="")
-}
+fit <- jags(jags.data,
+            inits=NULL,
+            parameters=jags.parameters,
+            model.file=model.file,
+            n.chains=n.chains,
+            n.burnin=n.burnin,
+            n.iter=n.iter,
+            n.thin=n.thin)
+cat(model.file, "\n")
+cat("   DIC: ", fit$BUGSoutput$DIC, "\n", sep="")
+cat("    pD: ", fit$BUGSoutput$pD, "\n", sep="")
 
-cat("\n\n\nFull model results...")
+cat("\n\n\n", model.file, "results...")
 print(fit, digits.summary=3)
 cat("\n\n\n")
 HPDintervals(fit, prob=0.95)

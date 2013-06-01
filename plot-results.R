@@ -1,6 +1,8 @@
 require(plotrix)
 
-get.probabilities <- function(work, beta, var, x) {
+debug <- FALSE
+
+get.probabilities <- function(work, beta, var, x, verbose=FALSE) {
   ## set up the necessary matrices and vectors
   ##
   n.cat <- nrow(beta) + 1
@@ -14,24 +16,39 @@ get.probabilities <- function(work, beta, var, x) {
 
   ## calculate probabilities
   ##
-  ## rows (i) are categories
-  ## columns (j) are level of covariate being plotted
+  ## non-varying covariates are incorporated into intercept term b.0
+  ## otherwise set slope b.1
   ##
   for (i in 1:(n.cat-1)) {
-    b.0 <- beta$beta.0[i]
+    b.0[i] <- beta$beta.0[i]
+    if (verbose) {
+      cat("b.0[", i, "]: ", b.0[i], "\n", sep="")
+    }
     for (v in c("fecundity", "fl.per.head", "infest", "map", "elev", "long",
                 "seed.mass")) {
       beta.var <- paste("beta.", v, sep="")
+      if (verbose) {
+        cat("v: ", v, "\n", sep="")
+      }
       if (v == var) {
         b.1[i] <- beta[[beta.var]][i]
+        if (verbose) {
+          cat("b.1[", i, "]: ", b.1[i], "\n", sep="")
+        }
       } else {
-        b.0[i] <- beta[[beta.var]][i]*work[[var]]
+        b.0[i] <- b.0[i] + beta[[beta.var]][i]*work[[v]]
+        if (verbose) {
+          cat("b.0[", i, "]: ", b.0[i], "\n", sep="")
+        }
       }
     }
     for (j in 1:length(x)) {
       l[i,j] <- b.0[i] + b.1[i]*x[j]
     }
   }
+  ## rows (i) are categories
+  ## columns (j) are level of covariate being plotted
+  ##
   for (i in 1:(n.cat-1)) {
     for (j in 1:length(x)) {
       l.star[i,j] <- sum(l[i:(n.cat-1),j])
@@ -90,7 +107,18 @@ plot.prediction <- function(beta, species, var) {
   ##
   cum.k <- array(dim=c(nrow(work), n.cat, length(x)))
   for (k in 1:nrow(work)) {
-    cum.k[k,,] <- get.probabilities(work[k,], beta, var, x)
+    if (debug && (species == "repens") && (var == "infest")) {
+      verbose <- TRUE
+      cat("species: ", species, "\n", sep="")
+      cat("work[k,]:\n")    
+      print(work[k,])
+      cat("beta:\n")
+      print(beta)
+      cat("var: ", var, "\n", sep="")
+    } else {
+      verbose <- FALSE
+    }
+    cum.k[k,,] <- get.probabilities(work[k,], beta, var, x, verbose)
   }
   ## average across sites
   cum <- matrix(nrow=n.cat, ncol=length(x))
@@ -128,7 +156,8 @@ extract.pink.coefficients <- function(x) {
   beta.elev <- x$BUGSoutput$sims.list$beta.pink.elev
   beta.long <- x$BUGSoutput$sims.list$beta.pink.long
   beta.seed.mass <- x$BUGSoutput$sims.list$beta.pink.seed.mass
-  list(beta.0=beta.0, beta.fecundity=beta.fecundity, beta.fl.per.head=beta.fl.per.head,
+  list(beta.0=beta.0, beta.fecundity=beta.fecundity,
+       beta.fl.per.head=beta.fl.per.head,
        beta.infest=beta.infest, beta.map=beta.map, beta.elev=beta.elev,
        beta.long=beta.long, beta.seed.mass=beta.seed.mass)
 }
