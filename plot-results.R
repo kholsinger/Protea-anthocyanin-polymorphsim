@@ -1,4 +1,6 @@
 require(plotrix)
+require(ggplot2)
+require(reshape2)
 
 debug <- FALSE
 
@@ -63,18 +65,21 @@ get.probabilities <- function(work, beta, var, x, verbose=FALSE) {
     }
   }
 
-  ## calculate cumulative probabilities
-  ##
-  for (j in 1:length(x)) {
-    cum[1,j] <- pi[1,j]
-    for (i in 2:n.cat) {
-      cum[i,j] <- pi[i,j] + cum[i-1,j]
+  if (0) {
+    ## calculate cumulative probabilities
+    ##
+    for (j in 1:length(x)) {
+      cum[1,j] <- pi[1,j]
+      for (i in 2:n.cat) {
+        cum[i,j] <- pi[i,j] + cum[i-1,j]
+      }
     }
+    
+    ## return cumulative probabilities
+    ##
+    cum
   }
-
-  ## return cumulative probabilities
-  ##
-  cum
+  pi
 }
 
 get.xaxlab <- function(min, max, x) {
@@ -135,16 +140,32 @@ plot.prediction <- function(beta, species, var) {
     rownames(cum) <- c("monomorphic", "skewed", "polymorphic")
   }
   colnames(cum) <- x
-
   cum <- data.frame(t(cum))
-  xat <- seq(from=n.pts/4, to=3*n.pts/4, by=n.pts/4)
-  xaxlab <- get.xaxlab(min.unscaled, max.unscaled, c(0.25, 0.50, 0.75))
-  colors <- rgb(red=c(255, 255, 255, 255, 255),
-                green=c(255, 207, 159, 111, 63),
-                blue=c(255, 207, 159, 111, 63),
-                maxColorValue=255)
-  stackpoly(cum, col=colors, axis4=FALSE, main=species,
-            xat=xat, xaxlab=xaxlab, xlab=var)
+  
+  x.unscaled <- seq(from=min.unscaled, to=max.unscaled,
+                    by=(max.unscaled-min.unscaled)/n.pts)
+  cum$species <- species
+  cum[[var]] <- x.unscaled
+  one.species <- melt(cum, id=c("species", var))
+  if (0) {
+    p <- ggplot(test, aes(x=elev, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(test$variable))) +
+         xlab("Elevation in meters") +
+         ylab("Cumulative probability") +
+         labs(fill="Color category")
+    print(p)
+    xat <- seq(from=n.pts/4, to=3*n.pts/4, by=n.pts/4)
+    xaxlab <- get.xaxlab(min.unscaled, max.unscaled, c(0.25, 0.50, 0.75))
+    colors <- rgb(red=c(255, 255, 255, 255, 255),
+                  green=c(255, 207, 159, 111, 63),
+                  blue=c(255, 207, 159, 111, 63),
+                  maxColorValue=255)
+    stackpoly(cum, col=colors, axis4=FALSE, main=species,
+              xat=xat, xaxlab=xaxlab, xlab=var)
+  }
+  one.species
 }
 
 extract.pink.coefficients <- function(x) {
@@ -163,7 +184,11 @@ extract.pink.coefficients <- function(x) {
 }
 
 plot.var <- function(x, var) {
-  old <- par(mfrow=c(2,2))
+##  old <- par(mfrow=c(2,2))
+  comp <- data.frame(species=NULL,
+                     variable=NULL,
+                     value=NULL)
+  comp[[var]] <- NULL
   for (i in 1:4) {
     species.label <- as.character(with(species.table, species[number==i]))
     ## set repens/non-repens idx
@@ -181,11 +206,83 @@ plot.var <- function(x, var) {
                        beta.elev=apply(x$beta.elev[,,idx], 2, mean),
                        beta.long=apply(x$beta.long[,,idx], 2, mean),
                        beta.seed.mass=apply(x$beta.seed.mass[,,idx], 2, mean))
-    plot.prediction(beta,
-                    species.label,
-                    var)
+    temp <- plot.prediction(beta,
+                            species.label,
+                            var)
+    comp <- rbind(comp, temp)
   }
-  par(old)
+  if (var == "elev") {
+    label <- "Elevation in meters"
+    p <- ggplot(comp, aes(x=elev, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  } else if (var == "fecundity") {
+    label <- "Fecundity"
+    p <- ggplot(comp, aes(x=fecundity, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  } else if (var == "fl.per.head") {
+    label <- "Flowers per head"
+    p <- ggplot(comp, aes(x=fl.per.head, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  } else if (var == "infest") {
+    label <- "Fraction of heads infested"
+    p <- ggplot(comp, aes(x=infest, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  } else if (var == "long") {
+    label <- "East longitude"
+    p <- ggplot(comp, aes(x=long, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  } else if (var == "map") {
+    label <- "Mean annual precipitation"
+    p <- ggplot(comp, aes(x=map, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  } else if (var == "seed.mass") {
+    label <- "Seed mass"
+    p <- ggplot(comp, aes(x=seed.mass, y=value, fill=variable)) +
+         geom_area(colour="black", size=0.2, alpha=0.4) +
+         scale_fill_brewer(palette="Reds",
+                           breaks=rev(levels(comp$variable))) +
+         xlab(label) +
+         ylab("Cumulative probability") +
+         labs(fill="Color category") +
+         facet_wrap(~ species)  
+  }
+  print(p)
 }
 
 ## x - an object returned by R2jags
@@ -199,10 +296,10 @@ plot.results <- function(x) {
            "map",
            "seed.mass")
   for (v in var) {
-    ## dev.new()
-    ## plot.var(extract.pink.coefficients(x), v)
-    pdf(file=paste(v, ".pdf", sep=""))
+    dev.new()
     plot.var(extract.pink.coefficients(x), v)
-    dev.off()
+##    pdf(file=paste(v, ".pdf", sep=""))
+##    plot.var(extract.pink.coefficients(x), v)
+##    dev.off()
   }
 }
