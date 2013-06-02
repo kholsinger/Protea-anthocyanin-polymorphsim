@@ -11,7 +11,6 @@ get.probabilities <- function(work, beta, var, x, verbose=FALSE) {
   l.star <- matrix(nrow=n.cat-1, ncol=length(x))
   phi <- matrix(nrow=n.cat, ncol=length(x))
   pi <- matrix(nrow=n.cat, ncol=length(x))
-  cum <- matrix(nrow=n.cat, ncol=length(x))
   b.0 <- numeric(n.cat-1)
   b.1 <- numeric(n.cat-1)
 
@@ -64,30 +63,7 @@ get.probabilities <- function(work, beta, var, x, verbose=FALSE) {
     }
   }
 
-  if (0) {
-    ## calculate cumulative probabilities
-    ##
-    for (j in 1:length(x)) {
-      cum[1,j] <- pi[1,j]
-      for (i in 2:n.cat) {
-        cum[i,j] <- pi[i,j] + cum[i-1,j]
-      }
-    }
-    
-    ## return cumulative probabilities
-    ##
-    cum
-  }
   pi
-}
-
-get.xaxlab <- function(min, max, x) {
-  val <- min + (max - min)*x
-  lab <- as.character(signif(val[1], digits=2))
-  for (i in 2:length(x)) {
-    lab <- c(lab, as.character(signif(val[i], digits=2)))
-  }
-  lab
 }
 
 plot.prediction <- function(beta, species, var) {
@@ -107,9 +83,9 @@ plot.prediction <- function(beta, species, var) {
   ##
   work <- color[color$species==species,]
   
-  ## calculate cumulative probabilities for each site
+  ## calculate piulative probabilities for each site
   ##
-  cum.k <- array(dim=c(nrow(work), n.cat, length(x)))
+  pi.k <- array(dim=c(nrow(work), n.cat, length(x)))
   for (k in 1:nrow(work)) {
     if (debug && (species == "repens") && (var == "infest")) {
       verbose <- TRUE
@@ -122,48 +98,30 @@ plot.prediction <- function(beta, species, var) {
     } else {
       verbose <- FALSE
     }
-    cum.k[k,,] <- get.probabilities(work[k,], beta, var, x, verbose)
+    pi.k[k,,] <- get.probabilities(work[k,], beta, var, x, verbose)
   }
   ## average across sites
-  cum <- matrix(nrow=n.cat, ncol=length(x))
+  pi <- matrix(nrow=n.cat, ncol=length(x))
   for (i in 1:n.cat) {
     for(j in 1:length(x)) {
-      cum[i,j] <- mean(cum.k[,i,j])
+      pi[i,j] <- mean(pi.k[,i,j])
     }
   }
 
   if (n.cat==5) {
-    rownames(cum) <- c("white", "skewed white", "even", "skewed pink",
+    rownames(pi) <- c("white", "skewed white", "even", "skewed pink",
                        "pink")
   } else {
-    rownames(cum) <- c("monomorphic", "skewed", "polymorphic")
+    rownames(pi) <- c("monomorphic", "skewed", "polymorphic")
   }
-  colnames(cum) <- x
-  cum <- data.frame(t(cum))
+  colnames(pi) <- x
+  pi <- data.frame(t(pi))
   
   x.unscaled <- seq(from=min.unscaled, to=max.unscaled,
                     by=(max.unscaled-min.unscaled)/n.pts)
-  cum$species <- species
-  cum[[var]] <- x.unscaled
-  one.species <- melt(cum, id=c("species", var))
-  if (0) {
-    p <- ggplot(test, aes(x=elev, y=value, fill=variable)) +
-         geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
-                           breaks=rev(levels(test$variable))) +
-         xlab("Elevation in meters") +
-         ylab("Cumulative probability") +
-         labs(fill="Color category")
-    print(p)
-    xat <- seq(from=n.pts/4, to=3*n.pts/4, by=n.pts/4)
-    xaxlab <- get.xaxlab(min.unscaled, max.unscaled, c(0.25, 0.50, 0.75))
-    colors <- rgb(red=c(255, 255, 255, 255, 255),
-                  green=c(255, 207, 159, 111, 63),
-                  blue=c(255, 207, 159, 111, 63),
-                  maxColorValue=255)
-    stackpoly(cum, col=colors, axis4=FALSE, main=species,
-              xat=xat, xaxlab=xaxlab, xlab=var)
-  }
+  pi$species <- species
+  pi[[var]] <- x.unscaled
+  one.species <- melt(pi, id=c("species", var))
   one.species
 }
 
