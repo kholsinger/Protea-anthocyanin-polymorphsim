@@ -1,29 +1,44 @@
 Response variable                covariate                  taxa
 -----------------                ---------                  -----
 pink                             elevation                  whites, repens
-                                 Note: white HPD (-10.152, 0.034)
-                                       symmetric (-10.337, -0.107)
+                                 Note: whites HPD (-10.152, 0.034)
+                                       symmetric  (-10.337, -0.107)
                                        skewed white to even
+                                       ***
+                                       repens
+                                       skewed white to even
+                                       even to skewed pink
                                  fecundity                  NS
                                  flowers per head           NS
                                  infest                     whites, repens
-                                 Note: repens HPD (-8.395, 0.011)
+                                 Note: whites
+                                       white to skewed white
+                                       ***
+                                       repens HPD (-8.395, 0.011)
                                        symmetric  (-8.559, -0.085)
                                        even to skewed pink
                                  longitude                  repens
+                                       repens
+                                       white to skewed white
+                                       skewed white to even
+                                       skewed pink to pink
                                  mean annual precipiation   NS
                                  seed mass                  NS
 poly                             elevation                  NS
                                  fecundity                  NS
                                  flowers per head           repens
-                                                            (skewed to poly) 
+                                       repens
+                                       skewed to poly
                                  infest                     NS
                                  longitude                  NS
                                  mean annual precipation    NS
                                  seed mass                  repens
-                                                            (skewed to poly)
+                                       repens
+                                       skewed to poly
 fecundity                        elevation                  NS
                                  Longitude                  repens
+                                       repens
+                                       positive (more pink in E)
                                  mean annual precipitation  NS
 flowers per head                 elevation                  NS
                                  longitude                  NS
@@ -35,7 +50,11 @@ infestation                      elevation                  NS
                                  seed mass                  NS
                                  species random effect      NS
 seed mass                        elevation                  repens
+                                       repens 
+                                       negative (fewer at high elev)
                                  longitude                  NS
                                  mean annual precipitation  repens
+                                       repens
+                                       negative (fewer at high MAP)
                                  species random effect      significant
                                  
