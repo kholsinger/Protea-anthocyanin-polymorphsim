@@ -1,19 +1,27 @@
 Response variable                covariate                  taxa
 -----------------                ---------                  -----
 pink                             elevation                  whites, repens
+                                 Note: white HPD (-10.152, 0.034)
+                                       symmetric (-10.337, -0.107)
+                                       skewed white to even
                                  fecundity                  NS
                                  flowers per head           NS
-                                 infest                     whites
+                                 infest                     whites, repens
+                                 Note: repens HPD (-8.395, 0.011)
+                                       symmetric  (-8.559, -0.085)
+                                       even to skewed pink
                                  longitude                  repens
                                  mean annual precipiation   NS
                                  seed mass                  NS
 poly                             elevation                  NS
                                  fecundity                  NS
-                                 flowers per head           NS
+                                 flowers per head           repens
+                                                            (skewed to poly) 
                                  infest                     NS
                                  longitude                  NS
                                  mean annual precipation    NS
-                                 seed mass                  NS
+                                 seed mass                  repens
+                                                            (skewed to poly)
 fecundity                        elevation                  NS
                                  Longitude                  repens
                                  mean annual precipitation  NS
@@ -28,6 +36,6 @@ infestation                      elevation                  NS
                                  species random effect      NS
 seed mass                        elevation                  repens
                                  longitude                  NS
-                                 mean annual precipitation  NS
-                                 species random effect      all except lacticolor
+                                 mean annual precipitation  repens
+                                 species random effect      significant
                                  

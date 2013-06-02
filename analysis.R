@@ -360,5 +360,6 @@ for (model.file in c("analysis-full.txt",
 
   ## close output file
   ##
+  sink()
 }
 write.csv(csv, file="DIC-results.csv")

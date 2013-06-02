@@ -313,7 +313,9 @@ plot.var <- function(x, var, model) {
 plot.pink.results <- function(x, pdf=TRUE) {
   var <- c("elev",
            "infest",
-           "long")
+           "long",
+           "fl.per.head",
+           "seed.mass")
   for (v in var) {
     dev.new()
     plot.var(extract.pink.coefficients(x), v, "pink")
@@ -326,7 +328,9 @@ plot.pink.results <- function(x, pdf=TRUE) {
 ## x - an object returned by R2jags
 ##
 plot.poly.results <- function(x, pdf=TRUE) {
-  var <- c("infest")
+  var <- c("infest",
+           "fl.per.head",
+           "seed.mass")
   for (v in var) {
     dev.new()
     plot.var(extract.poly.coefficients(x), v, "poly")
