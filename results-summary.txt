@@ -1,0 +1,33 @@
+Response variable                covariate                  taxa
+-----------------                ---------                  -----
+pink                             elevation                  whites, repens
+                                 fecundity                  NS
+                                 flowers per head           NS
+                                 infest                     whites
+                                 longitude                  repens
+                                 mean annual precipiation   NS
+                                 seed mass                  NS
+poly                             elevation                  NS
+                                 fecundity                  NS
+                                 flowers per head           NS
+                                 infest                     NS
+                                 longitude                  NS
+                                 mean annual precipation    NS
+                                 seed mass                  NS
+fecundity                        elevation                  NS
+                                 Longitude                  repens
+                                 mean annual precipitation  NS
+flowers per head                 elevation                  NS
+                                 longitude                  NS
+                                 mean annual precipitation  NS
+infestation                      elevation                  NS
+                                 fecundity                  NS
+                                 longitude                  NS
+                                 mean annual precipitation  NS
+                                 seed mass                  NS
+                                 species random effect      NS
+seed mass                        elevation                  repens
+                                 longitude                  NS
+                                 mean annual precipitation  NS
+                                 species random effect      all except lacticolor
+                                 

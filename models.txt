@@ -4,4 +4,7 @@ Full
 No-repens
 * sampe slopes for whites and repens
 * in results-no-repens.txt
-
+Zeros
+* same slopes for whites and repens
+* all coefficients with 95% HPD including zero set to zero
+* in results-zeros.txt

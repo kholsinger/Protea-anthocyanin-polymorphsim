@@ -1,4 +1,3 @@
-require(plotrix)
 require(ggplot2)
 require(reshape2)
 
@@ -183,7 +182,22 @@ extract.pink.coefficients <- function(x) {
        beta.long=beta.long, beta.seed.mass=beta.seed.mass)
 }
 
-plot.var <- function(x, var) {
+extract.poly.coefficients <- function(x) {
+  beta.0 <- x$BUGSoutput$sims.list$beta.poly.0
+  beta.fecundity <- x$BUGSoutput$sims.list$beta.poly.fecundity
+  beta.fl.per.head <- x$BUGSoutput$sims.list$beta.poly.fl.per.head
+  beta.infest <- x$BUGSoutput$sims.list$beta.poly.infest
+  beta.map <- x$BUGSoutput$sims.list$beta.poly.map
+  beta.elev <- x$BUGSoutput$sims.list$beta.poly.elev
+  beta.long <- x$BUGSoutput$sims.list$beta.poly.long
+  beta.seed.mass <- x$BUGSoutput$sims.list$beta.poly.seed.mass
+  list(beta.0=beta.0, beta.fecundity=beta.fecundity,
+       beta.fl.per.head=beta.fl.per.head,
+       beta.infest=beta.infest, beta.map=beta.map, beta.elev=beta.elev,
+       beta.long=beta.long, beta.seed.mass=beta.seed.mass)
+}
+
+plot.var <- function(x, var, model) {
 ##  old <- par(mfrow=c(2,2))
   comp <- data.frame(species=NULL,
                      variable=NULL,
@@ -211,11 +225,20 @@ plot.var <- function(x, var) {
                             var)
     comp <- rbind(comp, temp)
   }
+  if (model == "pink") {
+    pal <- "Reds"
+  } else if (model == "poly") {
+    pal <- "Greys"
+  } else {
+    cat("Unrecognized model: ", model, "\n", sep="")
+    cat("  Model must be \"pink\" or \"poly\" (case sensitive)\n")
+    stop(call.=FALSE)
+  }
   if (var == "elev") {
     label <- "Elevation in meters"
     p <- ggplot(comp, aes(x=elev, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -225,7 +248,7 @@ plot.var <- function(x, var) {
     label <- "Fecundity"
     p <- ggplot(comp, aes(x=fecundity, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -235,7 +258,7 @@ plot.var <- function(x, var) {
     label <- "Flowers per head"
     p <- ggplot(comp, aes(x=fl.per.head, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -245,7 +268,7 @@ plot.var <- function(x, var) {
     label <- "Fraction of heads infested"
     p <- ggplot(comp, aes(x=infest, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -255,7 +278,7 @@ plot.var <- function(x, var) {
     label <- "East longitude"
     p <- ggplot(comp, aes(x=long, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -265,7 +288,7 @@ plot.var <- function(x, var) {
     label <- "Mean annual precipitation"
     p <- ggplot(comp, aes(x=map, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -275,7 +298,7 @@ plot.var <- function(x, var) {
     label <- "Seed mass"
     p <- ggplot(comp, aes(x=seed.mass, y=value, fill=variable)) +
          geom_area(colour="black", size=0.2, alpha=0.4) +
-         scale_fill_brewer(palette="Reds",
+         scale_fill_brewer(palette=pal,
                            breaks=rev(levels(comp$variable))) +
          xlab(label) +
          ylab("Cumulative probability") +
@@ -287,19 +310,28 @@ plot.var <- function(x, var) {
 
 ## x - an object returned by R2jags
 ##
-plot.results <- function(x) {
+plot.pink.results <- function(x, pdf=TRUE) {
   var <- c("elev",
-           "fecundity",
-           "fl.per.head",
            "infest",
-           "long",
-           "map",
-           "seed.mass")
+           "long")
   for (v in var) {
     dev.new()
-    plot.var(extract.pink.coefficients(x), v)
-##    pdf(file=paste(v, ".pdf", sep=""))
-##    plot.var(extract.pink.coefficients(x), v)
-##    dev.off()
+    plot.var(extract.pink.coefficients(x), v, "pink")
+    if (pdf) {
+      ggsave(file=paste("pink-", v, ".pdf", sep=""))
+    }
+  }
+}
+
+## x - an object returned by R2jags
+##
+plot.poly.results <- function(x, pdf=TRUE) {
+  var <- c("infest")
+  for (v in var) {
+    dev.new()
+    plot.var(extract.poly.coefficients(x), v, "poly")
+    if (pdf) {
+      ggsave(file=paste("poly-", v, ".pdf", sep=""))
+    }
   }
 }

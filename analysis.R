@@ -9,8 +9,6 @@ debug <- FALSE
 ##
 runif(1) 
 
-model.file <- "analysis-no-repens.txt"
-
 n.poly.cat <- 3
 n.pink.cat <- 5
 
@@ -306,26 +304,61 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "eps.seed.mass.species",
                      "tau.seed.mass")
 
-fit <- jags(jags.data,
-            inits=NULL,
-            parameters=jags.parameters,
-            model.file=model.file,
-            n.chains=n.chains,
-            n.burnin=n.burnin,
-            n.iter=n.iter,
-            n.thin=n.thin)
-cat(model.file, "\n")
-cat("   DIC: ", fit$BUGSoutput$DIC, "\n", sep="")
-cat("    pD: ", fit$BUGSoutput$pD, "\n", sep="")
+csv <- data.frame(model=NULL,
+                  Dbar=NULL,
+                  Dhat=NULL,
+                  pD=NULL,
+                  DIC=NULL)
+for (model.file in c("analysis-full.txt",
+                     "analysis-no-repens.txt",
+                     "analysis-zeros.txt"))
+{
+  fit <- jags(jags.data,
+              inits=NULL,
+              parameters=jags.parameters,
+              model.file=model.file,
+              n.chains=n.chains,
+              n.burnin=n.burnin,
+              n.iter=n.iter,
+              n.thin=n.thin)
 
-cat("\n\n\n", model.file, "results...")
-print(fit, digits.summary=3)
-cat("\n\n\n")
-HPDintervals(fit, prob=0.95)
+  ## split results between terminal and results file
+  ##
+  results <- sub("analysis", "results", model.file)
+  sink(file=results, split=TRUE)
 
-cat("\n\n\n")
-source("compare-betas.R")
-compare(fit, prob=0.95)
+  model <- sub("analysis-", "", model.file)
+  model <- sub(".sxt", "", model.file)
+  cat(model, "\n")
+  DIC <- fit$BUGSoutput$DIC
+  pD <- fit$BUGSoutput$pD
+  Dbar <- DIC - pD
+  Dhat <- Dbar - pD
+  cat("  Dbar: ", Dbar, "\n", sep="")
+  cat("  Dhat: ", Dhat, "\n", sep="")
+  cat("    pD: ", pD, "\n", sep="")
+  cat("   DIC: ", DIC, "\n", sep="")
+  tmp <- data.frame(model=model,
+                    Dbar=Dbar,
+                    Dhat=Dhat,
+                    pD=pD,
+                    DIC=DIC)
+  csv <- rbind(csv, tmp)                    
+  
+  cat("\n\n\n", model.file, "results...")
+  print(fit, digits.summary=3)
+  cat("\n\n\n")
+  HPDintervals(fit, prob=0.95)
+  
+  cat("\n\n\n")
+  source("compare-betas.R")
+  compare(fit, prob=0.95)
 
-rsave <- paste(sub(".txt", "", model.file), ".Rsave", sep="")
-save(fit, species.table, color, unscaled, file=rsave)
+  rsave <- paste(sub(".txt", "", model.file), ".Rsave", sep="")
+  rsave <- sub("analysis", "results", rsave)
+  save(fit, species.table, color, unscaled, file=rsave)
+
+  ## close output file
+  ##
+}
+write.csv(csv, file="DIC-results.csv")
