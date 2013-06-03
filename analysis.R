@@ -202,7 +202,8 @@ pink <- color$pink
 
 ## save unscaled variates
 ##
-unscaled <- data.frame(elev=color$elev,
+unscaled <- data.frame(species=color$species,
+                       elev=color$elev,
                        fecundity=color$fecundity,
                        fl.per.head=color$fl.per.head,
                        infest=color$infest,

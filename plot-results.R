@@ -192,6 +192,12 @@ plot.var <- function(x, var, model) {
     cat("  Model must be \"pink\" or \"poly\" (case sensitive)\n")
     stop(call.=FALSE)
   }
+  temp <- data.frame(x=unscaled[[var]],
+                     xend=unscaled[[var]],
+                     y=0.0,
+                     yend=-0.025,
+                     species=unscaled$species,
+                     variable="white")
   if (var == "elev") {
     label <- "Elevation in meters"
     p <- ggplot(comp, aes(x=elev, y=value, fill=variable)) +
@@ -201,6 +207,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   } else if (var == "fecundity") {
     label <- "Fecundity"
@@ -211,6 +219,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   } else if (var == "fl.per.head") {
     label <- "Flowers per head"
@@ -221,6 +231,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   } else if (var == "infest") {
     label <- "Fraction of heads infested"
@@ -231,6 +243,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   } else if (var == "long") {
     label <- "East longitude"
@@ -241,6 +255,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   } else if (var == "map") {
     label <- "Mean annual precipitation"
@@ -251,6 +267,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   } else if (var == "seed.mass") {
     label <- "Seed mass"
@@ -261,6 +279,8 @@ plot.var <- function(x, var, model) {
          xlab(label) +
          ylab("Cumulative probability") +
          labs(fill="Color category") +
+         geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
+                      data=temp) +
          facet_wrap(~ species)  
   }
   print(p)
