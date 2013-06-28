@@ -310,10 +310,7 @@ csv <- data.frame(model=NULL,
                   Dhat=NULL,
                   pD=NULL,
                   DIC=NULL)
-for (model.file in c("analysis-full.txt",
-                     "analysis-no-repens.txt",
-                     "analysis-zeros.txt"))
-{
+for (model.file in c("analysis-full.txt")) {
   fit <- jags(jags.data,
               inits=NULL,
               parameters=jags.parameters,
@@ -363,4 +360,3 @@ for (model.file in c("analysis-full.txt",
   ##
   sink()
 }
-write.csv(csv, file="DIC-results.csv")
