@@ -67,28 +67,41 @@ rescale <- function(x) {
   x
 }
 
-printHPD <- function(hpd, name) {
-  out <- sprintf("%33s  %8.3f %8.3f", name, hpd[1,1], hpd[1,2])
+printInterval <- function(int, name) {
+  out <- sprintf("%33s  %8.3f %8.3f", name, int[1,1], int[1,2])
   cat(out)
-  if ((hpd[1,1] > 0) || (hpd[1,2] < 0)) {
+  if ((int[1,1] > 0) || (int[1,2] < 0)) {
     cat("*")
   }
   cat("\n")
 }
 
-HPDvector <- function(x, name, prob) {
+SYMinterval <- function(x, prob) {
+  lo <- (1.0 - prob)/2.0
+  hi <- 1.0 - lo
+  sym <- matrix(nrow=1, ncol=2)
+  sym[1,] <- quantile(x, c(lo, hi))
+  sym
+}
+
+intervalvector <- function(x, name, prob, type) {
   var <- x[[name]]
   n.cat <- dim(var)[2]
   for (i in 1:n.cat) {
     new.name <- paste(name, "[", i, "]", sep="")
-    hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
-    printHPD(hpd, new.name)
+    if (type == "symmetric") {
+      sym <- SYMinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
+      printInterval(sym, new.name)
+    } else if (type == "HPD") {
+      hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
+      printInterval(hpd, new.name)
+    }
   }
 }
 
-HPDintervals <- function(x, prob) {
+intervals <- function(x, prob, type) {
   x <- x$BUGSoutput$sims.list
-  out <- sprintf("%2.0f%% HPD intervals\n", prob*100)
+  out <- sprintf("%2.0f%% %s intervals\n", prob*100, type)
   cat(out)
   out <- sprintf("%33s  %8s %8s\n", "Coefficient", "lo", "hi")
   cat(out)
@@ -102,7 +115,7 @@ HPDintervals <- function(x, prob) {
                     "eps.fecundity.species", "eps.fl.per.head.species",
                     "eps.infest.species", "eps.seed.mass.species"))
     {
-      HPDvector(x, name, prob)
+      intervalvector(x, name, prob, type)
     } else if (name %in% c("beta.poly.elev", "beta.poly.fecundity",
                            "beta.poly.fl.per.head", "beta.poly.infest",
                            "beta.poly.long", "beta.poly.map",
@@ -110,15 +123,21 @@ HPDintervals <- function(x, prob) {
                            "beta.pink.elev", "beta.pink.fecundity",
                            "beta.pink.fl.per.head", "beta.pink.infest",
                            "beta.pink.long", "beta.pink.map",
-                           "beta.pink.seed.mass", "beta.pink.0"))
+                           "beta.pink.seed.mass", "beta.pink.0",
+                           "Sigma"))
     {
       var <- x[[name]]
       n.cat <- dim(var)[2:3]
       for (i in 1:n.cat[1]) {
         for (j in 1:n.cat[2]) {
            new.name <- paste(name, "[", i, ",", j, "]", sep="")
-           hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i,j])), prob=prob)
-           printHPD(hpd, new.name)
+           if (type == "symmetric") {
+             sym <- SYMinterval(mcmcUpgrade(as.mcmc(var[,i,j])), prob=prob)
+             printInterval(sym, new.name)
+           } else if (type == "HPD") {
+             hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i,j])), prob=prob)
+             printInterval(hpd, new.name)
+           }
         }
       }
     } else if (name %in% c("beta.fecundity.elev", "beta.fecundity.long",
@@ -133,12 +152,22 @@ HPDintervals <- function(x, prob) {
       var <- x[[name]]
       for (i in 1:2) {
         new.name <- paste(name, "[", i, "]", sep="")
-        hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
-        printHPD(hpd, new.name)
+        if (type == "symmetric") {
+          sym <- SYMinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
+          printInterval(sym, new.name)
+        } else if (type == "HPD") {
+          hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
+          printInterval(hpd, new.name)
+        }
       }
     } else {
-      hpd <- HPDinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
-      printHPD(hpd, name)
+      if (type == "symmetric") {
+        sym <- SYMinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
+        printInterval(sym, name)
+      } else if (type == "HPD") {
+        hpd <- HPDinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
+        printInterval(hpd, name)
+      }
     }
   }
 }
@@ -233,6 +262,13 @@ n.species <- nrow(species.table)
 tau.beta <- 0.1
 tau.species <- 0.1
 
+y <- as.matrix(data.frame(fecundity,
+                          fl.per.head,
+                          seed.mass))
+
+Omega <- diag(x=1.0, nrow=3, ncol=3)
+wish.nu <- nrow(Omega) + 2
+
 jags.data <- c("fecundity",
                "fl.per.head",
                "seed.mass",
@@ -249,7 +285,10 @@ jags.data <- c("fecundity",
                "n.poly.cat",
                "n.pink.cat",
                "tau.beta",
-               "tau.species")
+               "tau.species",
+               "y",
+               "Omega",
+               "wish.nu")
 jags.parameters <- c("alpha.poly.fecundity",
                      "alpha.poly.fl.per.head",
                      "alpha.poly.seed.mass",
@@ -303,7 +342,8 @@ jags.parameters <- c("alpha.poly.fecundity",
                      "beta.seed.mass.map",
                      "beta.seed.mass.elev",
                      "eps.seed.mass.species",
-                     "tau.seed.mass")
+                     "tau.seed.mass",
+                     "Sigma")
 
 csv <- data.frame(model=NULL,
                   Dbar=NULL,
@@ -346,7 +386,10 @@ for (model.file in c("analysis-full.txt")) {
   cat("\n\n\n", model.file, "results...")
   print(fit, digits.summary=3)
   cat("\n\n\n")
-  HPDintervals(fit, prob=0.95)
+  intervals(fit, prob=0.95, "symmetric")
+  intervals(fit, prob=0.95, "HPD")
+  intervals(fit, prob=0.90, "symmetric")
+  intervals(fit, prob=0.90, "HPD")
   
   cat("\n\n\n")
   source("compare-betas.R")

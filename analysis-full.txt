@@ -86,18 +86,16 @@ model {
   ## covariates regressed on abiotic conditions
   ##
   for (i in 1:n.obs) {
-    fecundity[i] ~ dnorm(mu.fecundity[i], tau.fecundity)
-    mu.fecundity[i] <-  beta.fecundity.long[repens[i]]*map[i]
+    y[i,1:3] ~ dmnorm(mu[i,1:3], phi[1:3,1:3])
+    mu[i,1] <-  beta.fecundity.long[repens[i]]*map[i]
                         + beta.fecundity.map[repens[i]]*elev[i]
                         + beta.fecundity.elev[repens[i]]*long[i]
                         + eps.fecundity.species[species[i]]
-    fl.per.head[i] ~ dnorm(mu.fl.per.head[i], tau.fl.per.head)
-    mu.fl.per.head[i] <-  beta.fl.per.head.long[repens[i]]*map[i]
+    mu[i,2] <-  beta.fl.per.head.long[repens[i]]*map[i]
                           + beta.fl.per.head.map[repens[i]]*elev[i]
                           + beta.fl.per.head.elev[repens[i]]*long[i]
                           + eps.fl.per.head.species[species[i]]
-    seed.mass[i] ~ dnorm(mu.seed.mass[i], tau.seed.mass)
-    mu.seed.mass[i] <-  beta.seed.mass.long[repens[i]]*map[i]
+    mu[i,3] <-  beta.seed.mass.long[repens[i]]*map[i]
                         + beta.seed.mass.map[repens[i]]*elev[i]
                         + beta.seed.mass.elev[repens[i]]*long[i]
                         + eps.seed.mass.species[species[i]]
@@ -205,4 +203,7 @@ model {
     eps.seed.mass.species[i] ~ dnorm(0.0, tau.species)
   }
   tau.seed.mass ~ dgamma(0.1, 0.1)
+
+  phi[1:3,1:3] ~ dwish(Omega[1:3,1:3], wish.nu)
+  Sigma[1:3,1:3] <- inverse(phi[1:3,1:3])
 }
