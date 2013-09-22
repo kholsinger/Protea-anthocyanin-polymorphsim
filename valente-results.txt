@@ -1,0 +1,59 @@
+Iterations = 1000001:10990001
+Thinning interval = 10000 
+Number of chains = 5 
+Sample size per chain = 1000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+              Mean     SD Naive SE Time-series SE
+(Intercept)  65.68 136.12   1.9250         24.105
+ele         -19.23  30.40   0.4299          3.045
+long         24.35  34.60   0.4893          2.633
+map          30.52  33.64   0.4758          2.992
+
+2. Quantiles for each variable:
+
+                  2.5%        5%    50%    95%  97.5%
+(Intercept) -215.49105 -117.3138 23.543 323.55 411.30
+ele         -101.74936  -82.2782 -6.746   6.93  14.61
+long         -15.40663   -6.6061  9.967  97.01 114.35
+map            0.02559    0.7012 18.257 101.36 115.12
+
+
+
+
+
+95% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)  -191.482  425.644
+                              ele   -95.042   17.825
+                             long   -18.845  109.113
+                              map    -4.823  107.023
+
+
+
+
+90% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)   -92.206  340.702
+                              ele   -74.179   10.599
+                             long   -14.534   86.011
+                              map    -1.155   86.950
+
+
+
+
+Potential scale reduction factors:
+
+            Point est. Upper C.I.
+(Intercept)       1.24       1.68
+ele               1.06       1.12
+long              1.02       1.05
+map               1.02       1.05
+
+Multivariate psrf
+
+1.16
