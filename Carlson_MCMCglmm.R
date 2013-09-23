@@ -6,7 +6,7 @@ rm(list=ls())
 
 na.strings <- c("NA", ".")
 test <- FALSE
-valente <- TRUE
+valente <- FALSE
 
 n.reps <- 5
 

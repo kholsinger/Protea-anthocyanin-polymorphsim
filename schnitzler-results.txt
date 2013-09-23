@@ -1,5 +1,5 @@
-Iterations = 1000001:10990001
-Thinning interval = 10000 
+Iterations = 1e+07:109900001
+Thinning interval = 1e+05 
 Number of chains = 5 
 Sample size per chain = 1000 
 
@@ -7,18 +7,18 @@ Sample size per chain = 1000
    plus standard error of the mean:
 
               Mean    SD Naive SE Time-series SE
-(Intercept) 63.449 79.69   1.1270          7.929
-ele         -9.172 29.47   0.4168          1.110
-long        13.859 31.97   0.4522          1.240
-map         39.309 34.06   0.4817          2.000
+(Intercept)  68.53 88.25   1.2480         3.1914
+ele         -10.03 31.95   0.4519         0.6291
+long         15.21 34.57   0.4888         0.5973
+map          42.72 37.01   0.5235         0.9296
 
 2. Quantiles for each variable:
 
                 2.5%      5%    50%    95%  97.5%
-(Intercept) -31.7878 -13.121 40.405 221.02 267.78
-ele         -85.3556 -64.113 -2.425  30.36  47.23
-long        -40.9637 -29.001  4.995  77.65  91.91
-map           0.6118   1.319 32.227 104.72 117.21
+(Intercept) -45.5129 -19.401 45.078 243.29 296.95
+ele         -91.4154 -70.965 -2.417  31.77  47.06
+long        -43.7707 -30.571  5.631  83.02 101.18
+map          -0.2979   1.202 36.502 112.39 125.54
 
 
 
@@ -27,10 +27,10 @@ map           0.6118   1.319 32.227 104.72 117.21
 95% HPD intervals
                       Coefficient        lo       hi
 ---------------------------------   -------  -------
-                      (Intercept)   -45.639  247.987
-                              ele   -75.346   52.146
-                             long   -42.460   89.389
-                              map    -0.328  112.046
+                      (Intercept)   -72.452  267.174
+                              ele   -81.883   53.162
+                             long   -42.599  101.980
+                              map    -1.271  123.323
 
 
 
@@ -38,10 +38,10 @@ map           0.6118   1.319 32.227 104.72 117.21
 90% HPD intervals
                       Coefficient        lo       hi
 ---------------------------------   -------  -------
-                      (Intercept)   -23.525  197.543
-                              ele   -63.475   30.863
-                             long   -30.991   74.313
-                              map    -0.064   95.415
+                      (Intercept)   -32.474  223.036
+                              ele   -64.095   37.063
+                             long   -36.445   76.097
+                              map    -0.083  102.967
 
 
 
@@ -49,11 +49,11 @@ map           0.6118   1.319 32.227 104.72 117.21
 Potential scale reduction factors:
 
             Point est. Upper C.I.
-(Intercept)       1.06       1.14
-ele               1.06       1.10
-long              1.02       1.03
-map               1.05       1.14
+(Intercept)          1       1.01
+ele                  1       1.01
+long                 1       1.01
+map                  1       1.01
 
 Multivariate psrf
 
-1.07
+1.01
