@@ -6,7 +6,9 @@ rm(list=ls())
 
 na.strings <- c("NA", ".")
 test <- FALSE
-valente <- FALSE
+valente <- TRUE
+
+drop.venusta <- TRUE
 
 n.reps <- 5
 
@@ -22,8 +24,11 @@ if (test) {
 n.iter <- n.burnin + n.sample
 
 columns <- c("ele",
+             "ele.range",
              "long",	
-             "map")
+             "map",
+             "map.range",
+             "area")
 
 
 ## Drop unused factor levels from all factors in a data.frame
@@ -65,34 +70,45 @@ standardize <- function(x) {
 means <- read.csv("Carlson_colorDataAll.csv",
                     na.strings=".",
                     header=TRUE)
+means <- subset(means, means$include_1 == 1)
 if (valente) {
   means$animal <- means$Valente_name
 } else {
   means$animal <- means$Schnitzler_name
 }
-means$animal
 
 ## pull out desired variables
 if (valente) {
-  species <- means$Valente_name
+  species <-means$Valente_name
 } else {
-  species <-means$Schnitzler_name
+  species <- means$Schnitzler_name
 }
 poly <- means$polymorph_yes
 ele <- means$elevation
+ele.range <- means$MAX_ELE - means$MIN_ELE
 map <- means$MAP
+map.range <- means$MAP_MAX - means$MAP_MIN
+area <- means$range_area_albers
 long <- means$long
-dry <- means$rainfall_dry_season
 animal <-means$animal
 
 ## put variables into new data frame
 tmp <- data.frame(species=species,
                   poly=poly,
                   ele=ele,
+                  ele.range=ele.range,
                   map=map,
+                  map.range=map.range,
+                  area=area,
                   long=long,
-                  dry=dry,
                   animal=animal)
+if (drop.venusta) {
+  if (valente) {
+    tmp <- subset(tmp, species != "Prvenu")
+  } else {
+    tmp <- subset(tmp, species != "Protea_venusta")
+  }
+}
 ## get rid of incomplete cases
 ok <- complete.cases(tmp)
 tmp <- tmp[ok,]
@@ -103,27 +119,33 @@ species <- tmp$species
 poly <- tmp$poly
 animal <-tmp$animal
 ele <- standardize(tmp$ele)
+ele.range <- standardize(tmp$ele.range)
 map <- standardize(tmp$map)
+map.range <- standardize(tmp$map.range)
+area <- standardize(tmp$area)
 long <- standardize(tmp$long)
-dry <- standardize(tmp$dry)
 
 tmp <- data.frame(species=species,
                   poly=poly,
                   ele=ele,
+                  ele.range=ele.range,
                   map=map,
+                  map.range=map.range,
+                  area=area,
                   long=long,
-                  dry=dry,
                   animal=animal)
 ## cladogram
 ##
 if (valente) {
-  clades <- read.nexus("valentetree.nex")
+  clades <- read.tree("valentetree.tre")
+  clades$tip.label <- tolower(clades$tip.label)
+  substr(clades$tip.label, 1, 1) <- "P"
 } else {
   clades <- read.nexus("schnitzler.nex")
 }
 ## drop taxa that are not included in means data set
 ##
-phylo <- drop.tip(clades, setdiff(clades$tip.label, means$animal))
+phylo <- drop.tip(clades, setdiff(clades$tip.label, tmp$animal))
 phylo <- makeNodeLabel(phylo)
 
 n.fixed <- length(columns) + 3 + 1
@@ -138,7 +160,7 @@ results.deviance <- matrix(nrow=n.reps, ncol=n.sample/n.thin)
 for (i in 1:n.reps) {
   cat("rep", i, "\n")
   flush.console()
-  results <- MCMCglmm(poly ~ ele + long + map,
+  results <- MCMCglmm(poly ~ ele + ele.range + long + map + map.range + area,
                       random = ~ animal,
                       data=tmp,
                       prior=prior,

@@ -21,4 +21,7 @@ script.txt
 ## Miscellaneous files to ignore
 ##
 *.pdf
+*.xlsx
+*.docx
+
 
