@@ -87,17 +87,17 @@ model {
   ##
   for (i in 1:n.obs) {
     y[i,1:3] ~ dmnorm(mu[i,1:3], phi[1:3,1:3])
-    mu[i,1] <-  beta.fecundity.long[repens[i]]*map[i]
-                        + beta.fecundity.map[repens[i]]*elev[i]
-                        + beta.fecundity.elev[repens[i]]*long[i]
+    mu[i,1] <-  beta.fecundity.long[repens[i]]*long[i]
+                        + beta.fecundity.map[repens[i]]*map[i]
+                        + beta.fecundity.elev[repens[i]]*elev[i]
                         + eps.fecundity.species[species[i]]
-    mu[i,2] <-  beta.fl.per.head.long[repens[i]]*map[i]
-                          + beta.fl.per.head.map[repens[i]]*elev[i]
-                          + beta.fl.per.head.elev[repens[i]]*long[i]
+    mu[i,2] <-  beta.fl.per.head.long[repens[i]]*long[i]
+                          + beta.fl.per.head.map[repens[i]]*map[i]
+                          + beta.fl.per.head.elev[repens[i]]*elev[i]
                           + eps.fl.per.head.species[species[i]]
-    mu[i,3] <-  beta.seed.mass.long[repens[i]]*map[i]
-                        + beta.seed.mass.map[repens[i]]*elev[i]
-                        + beta.seed.mass.elev[repens[i]]*long[i]
+    mu[i,3] <-  beta.seed.mass.long[repens[i]]*long[i]
+                        + beta.seed.mass.map[repens[i]]*map[i]
+                        + beta.seed.mass.elev[repens[i]]*elev[i]
                         + eps.seed.mass.species[species[i]]
   }
 
