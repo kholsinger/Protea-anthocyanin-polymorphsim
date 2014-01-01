@@ -5,10 +5,10 @@ library(ape)
 rm(list=ls())
 
 na.strings <- c("NA", ".")
-test <- FALSE
+test <- TRUE
 valente <- TRUE
 
-drop.venusta <- TRUE
+drop.venusta <- FALSE
 
 n.reps <- 5
 
@@ -25,7 +25,7 @@ n.iter <- n.burnin + n.sample
 
 columns <- c("ele",
              "ele.range",
-             "long",	
+             "long",
              "map",
              "map.range",
              "area")
@@ -115,6 +115,7 @@ tmp <- tmp[ok,]
 tmp <- drop.levels(tmp)
 
 ## 3. pull the vectors back out and standardize
+raw.data <- tmp
 species <- tmp$species
 poly <- tmp$poly
 animal <-tmp$animal
@@ -134,6 +135,8 @@ tmp <- data.frame(species=species,
                   area=area,
                   long=long,
                   animal=animal)
+fitted.data <- tmp
+
 ## cladogram
 ##
 if (valente) {
@@ -169,6 +172,7 @@ for (i in 1:n.reps) {
                       burnin=n.burnin,
                       thin=n.thin,
                       family="categorical",
+                      pr=TRUE,
                       verbose=FALSE,
                       slice=TRUE)
   results.mcmc[[i]] <- as.mcmc(results$Sol)
@@ -187,3 +191,5 @@ if (n.reps > 1) {
   cat("\n\n\n\n")
   print(gelman.diag(results.mcmc))
 }
+
+save(results.mcmc, raw.data, fitted.data, file="poly-results.Rsave")
