@@ -16,9 +16,9 @@ if (test) {
   n.thin <- 1
   n.reps <- 2
 } else {
-  n.sample <- 1000000
-  n.burnin <- 100000
-  n.thin <- 200
+  n.sample <- 10000000
+  n.burnin <- 1000000
+  n.thin <- 2000
 }
 n.iter <- n.burnin + n.sample
 
