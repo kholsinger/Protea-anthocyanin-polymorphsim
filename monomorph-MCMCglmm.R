@@ -144,7 +144,7 @@ clades <- read.tree("valentetree.tre")
 phylo <- drop.tip(clades, setdiff(clades$tip.label, tmp$animal))
 phylo <- makeNodeLabel(phylo)
 
-n.fixed <- length(columns) + 3 + 1
+n.fixed <- 1 + 3 + 1
 
 prior <- list(R=list(V=1, nu=1, fix=1),
               G=list(G1=list(V=1, nu=3)))
@@ -156,7 +156,7 @@ results.deviance <- matrix(nrow=n.reps, ncol=n.sample/n.thin)
 for (i in 1:n.reps) {
   cat("rep", i, "\n")
   flush.console()
-  results <- MCMCglmm(color ~ long + elevation + map,
+  results <- MCMCglmm(color ~ elevation,
                       random = ~ animal,
                       data=tmp,
                       prior=prior,

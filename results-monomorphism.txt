@@ -1,0 +1,234 @@
+Iterations = 1000001:10998001
+Thinning interval = 2000
+Number of chains = 5
+Sample size per chain = 5000
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                 Mean     SD Naive SE Time-series SE
+(Intercept)    11.422 47.261  0.29891         1.6000
+long           -3.552  8.226  0.05203         0.8539
+elevation      -2.400 10.493  0.06636         0.8644
+map            -3.457  5.228  0.03306         0.3784
+
+2. Quantiles for each variable:
+
+                 2.5%      5%     50%     95%   97.5%
+(Intercept)    -81.75  -59.35   9.873  87.556 109.654
+long           -24.21  -18.79  -2.645   8.675  10.761
+elevation      -24.50  -20.31  -2.361  14.835  19.279
+map            -15.74  -13.23  -2.601   3.565   4.744
+
+
+
+
+
+95% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)   -83.082  107.748
+                             long   -21.361   12.115
+                        elevation   -23.763   19.917
+                              map   -14.470    5.652
+
+
+
+
+90% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)   -58.693   88.147
+                             long   -16.768    9.842
+                        elevation   -20.051   15.042
+                              map   -12.159    4.234
+
+
+
+
+Potential scale reduction factors:
+
+              Point est. Upper C.I.
+(Intercept)         1.03       1.03
+long                1.15       1.38
+elevation           1.04       1.04
+map                 1.05       1.10
+
+Multivariate psrf
+
+1.79
+
+Iterations = 1000001:10998001
+Thinning interval = 2000
+Number of chains = 5
+Sample size per chain = 5000
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                  Mean     SD Naive SE Time-series SE
+(Intercept)     19.327 59.762  0.37797          2.256
+long            -8.030 12.187  0.07708          1.599
+elevation       -8.444 13.900  0.08791          1.430
+map             -4.026  6.837  0.04324          0.721
+animal.Node2   -23.931 50.416  0.31886          1.648
+animal.Node3   -21.389 56.121  0.35494          1.908
+animal.Node4    10.547 66.521  0.42071          2.629
+animal.Node5   -37.661 57.830  0.36575          2.041
+animal.Node6   -42.280 61.630  0.38978          2.168
+animal.Node7   -74.058 67.432  0.42648          2.461
+animal.Node8   -42.656 61.850  0.39117          2.280
+animal.Node9   -69.663 66.514  0.42067          2.583
+animal.Node10  -77.729 70.149  0.44366          2.790
+animal.Node11  -87.776 71.889  0.45467          3.053
+animal.PRLORE   75.792 76.350  0.48288          4.337
+animal.PRINOP   39.301 77.839  0.49230          3.537
+animal.PRLANC   43.891 75.743  0.47904          3.796
+animal.PRRUPI  -92.406 77.572  0.49061          4.385
+animal.PRCORO   48.337 74.797  0.47306          3.720
+animal.PRCPCT  -93.360 67.668  0.42797          3.193
+animal.PRSUSA  -93.469 72.542  0.45880          3.604
+animal.PRSTOK  -85.164 73.793  0.46671          3.430
+animal.PRARIS  -95.316 80.764  0.51079          4.384
+animal.PREXIM  -89.209 70.866  0.44819          3.543
+animal.PRVENU -100.847 80.698  0.51038          4.131
+animal.PRGRAN -101.642 72.791  0.46037          3.798
+animal.PRHOLO   34.166 73.710  0.46618          3.468
+
+2. Quantiles for each variable:
+
+                 2.5%      5%     50%     95%   97.5%
+(Intercept)    -97.96  -74.78  16.763 121.745 149.766
+long           -37.16  -33.04  -5.328   8.789  11.678
+elevation      -38.63  -33.90  -6.800  12.097  15.766
+map            -21.45  -17.31  -2.832   4.642   6.199
+animal.Node2  -132.85 -111.18 -20.963  55.005  75.784
+animal.Node3  -141.49 -116.92 -18.663  66.654  90.852
+animal.Node4  -120.53  -93.74   8.208 122.612 153.212
+animal.Node5  -165.31 -137.63 -33.657  51.263  74.193
+animal.Node6  -178.80 -149.15 -38.127  52.155  75.389
+animal.Node7  -226.04 -195.08 -67.385  24.411  46.393
+animal.Node8  -178.61 -150.39 -38.099  51.379  75.453
+animal.Node9  -219.27 -188.21 -62.380  25.705  46.879
+animal.Node10 -238.70 -203.24 -69.465  20.539  43.547
+animal.Node11 -252.32 -216.41 -78.534  12.059  31.216
+animal.PRLORE  -50.77  -29.11  65.913 217.561 253.988
+animal.PRINOP  -99.94  -72.82  31.441 180.092 220.310
+animal.PRLANC  -88.10  -64.18  35.737 180.493 223.110
+animal.PRRUPI -283.80 -241.18 -78.894   7.835  25.595
+animal.PRCORO  -83.59  -59.17  38.822 186.619 229.178
+animal.PRCPCT -243.83 -214.08 -87.731   7.219  28.506
+animal.PRSUSA -257.03 -226.66 -84.319   9.376  26.320
+animal.PRSTOK -254.57 -222.41 -76.054  19.159  40.747
+animal.PRARIS -293.30 -245.86 -84.482  13.109  33.433
+animal.PREXIM -249.35 -220.85 -80.687  10.813  32.028
+animal.PRVENU -286.68 -247.84 -90.066  10.649  30.674
+animal.PRGRAN -267.77 -233.58 -92.083  -1.100  15.603
+animal.PRHOLO -102.31  -76.89  27.999 162.891 195.093
+
+
+
+
+
+95% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)  -104.552  142.070
+                             long   -36.881   11.822
+                        elevation   -38.171   16.055
+                              map   -18.607    7.869
+                     animal.Node2  -132.213   75.987
+                     animal.Node3  -139.309   92.175
+                     animal.Node4  -127.204  146.231
+                     animal.Node5  -160.874   77.717
+                     animal.Node6  -172.798   80.417
+                     animal.Node7  -220.177   50.764
+                     animal.Node8  -178.373   75.692
+                     animal.Node9  -211.708   52.794
+                    animal.Node10  -228.174   51.475
+                    animal.Node11  -235.269   45.277
+                    animal.PRLORE   -58.127  243.933
+                    animal.PRINOP  -103.852  215.359
+                    animal.PRLANC   -93.390  214.020
+                    animal.PRRUPI  -261.399   39.603
+                    animal.PRCORO   -92.562  216.694
+                    animal.PRCPCT  -235.537   34.099
+                    animal.PRSUSA  -241.890   37.460
+                    animal.PRSTOK  -253.621   41.275
+                    animal.PRARIS  -263.137   57.216
+                    animal.PREXIM  -247.070   33.579
+                    animal.PRVENU  -267.807   43.688
+                    animal.PRGRAN  -250.580   26.989
+                    animal.PRHOLO  -107.245  189.005
+
+
+
+
+90% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)   -75.749  120.188
+                             long   -29.950   10.730
+                        elevation   -33.459   12.388
+                              map   -13.763    6.547
+                     animal.Node2  -108.993   56.525
+                     animal.Node3  -112.846   70.378
+                     animal.Node4   -95.633  119.842
+                     animal.Node5  -135.326   53.404
+                     animal.Node6  -144.295   56.481
+                     animal.Node7  -189.005   28.712
+                     animal.Node8  -149.127   52.340
+                     animal.Node9  -180.424   32.032
+                    animal.Node10  -193.407   28.494
+                    animal.Node11  -204.263   20.832
+                    animal.PRLORE   -42.264  199.549
+                    animal.PRINOP   -80.785  169.120
+                    animal.PRLANC   -76.467  163.342
+                    animal.PRRUPI  -215.088   22.546
+                    animal.PRCORO   -70.455  170.778
+                    animal.PRCPCT  -209.457   10.408
+                    animal.PRSUSA  -211.484   21.082
+                    animal.PRSTOK  -209.349   28.617
+                    animal.PRARIS  -218.323   30.671
+                    animal.PREXIM  -210.838   18.326
+                    animal.PRVENU  -232.316   21.834
+                    animal.PRGRAN  -212.422   13.502
+                    animal.PRHOLO   -86.801  152.123
+
+
+
+
+Potential scale reduction factors:
+
+              Point est. Upper C.I.
+(Intercept)         1.08       1.19
+long                2.11       3.69
+elevation           1.11       1.28
+map                 1.33       1.84
+animal.Node2        1.04       1.09
+animal.Node3        1.04       1.09
+animal.Node4        1.05       1.11
+animal.Node5        1.05       1.12
+animal.Node6        1.05       1.12
+animal.Node7        1.08       1.19
+animal.Node8        1.06       1.14
+animal.Node9        1.09       1.22
+animal.Node10       1.11       1.27
+animal.Node11       1.10       1.25
+animal.PRLORE       1.15       1.37
+animal.PRINOP       1.04       1.07
+animal.PRLANC       1.22       1.52
+animal.PRRUPI       1.10       1.26
+animal.PRCORO       1.37       1.86
+animal.PRCPCT       1.09       1.24
+animal.PRSUSA       1.28       1.64
+animal.PRSTOK       1.07       1.18
+animal.PRARIS       1.18       1.44
+animal.PREXIM       1.18       1.44
+animal.PRVENU       1.13       1.32
+animal.PRGRAN       1.12       1.31
+animal.PRHOLO       1.04       1.10
+
+Multivariate psrf
+
+3.03
