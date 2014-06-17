@@ -1,0 +1,70 @@
+model {
+  ## adjacent-categories logits
+  ## final category as baseline
+  ##
+  for (i in 1:n.obs) {
+    ## polymorphism response
+    ##
+    pink[i] ~ dcat(pi[i,])
+    ## adjacent categories
+    ##
+    for (j in 1:(n.cat-1)) {
+      L[i,j] <- beta.0[j,species[i]]
+                + beta.long[j,repens[i]]*long[i]
+                + beta.map[j,repens[i]]*map[i]
+                + beta.elev[j,repens[i]]*elev[i]
+                + beta.fecundity[j,repens[i]]*fecundity[i]
+                + beta.fl.per.head[j,repens[i]]*fl.per.head[i]
+                + beta.seed.mass[j,repens[i]]*seed.mass[i]
+                + beta.infest[j,repens[i]]*infest[i]
+    }
+    ## category 1 through n.cat-2
+    ##
+    for (j in 1:(n.cat-1)) {
+      L.star[i,j] <- sum(L[i,j:(n.cat-1)])
+    }
+    ## exponentiate L.star
+    ##
+    for (j in 1:(n.cat-1)) {
+      phi[i,j] <- exp(L.star[i,j])
+    }
+    phi[i,n.cat] <- 1.0
+    ## convert to probabilities
+    ##
+    sum.phi[i] <- sum(phi[i,])
+    for (j in 1:n.cat) {
+      pi[i,j] <- phi[i,j]/sum.phi[i]
+    }
+
+  }
+
+  ## priors for adjacent-categories logit
+  ##
+  for (i in 1:2) {
+    for (j in 1:(n.cat-1)) {
+      beta.elev[j,i] ~ dnorm(alpha.elev, tau.beta)
+      beta.fecundity[j,i] ~ dnorm(alpha.fecundity, tau.beta)
+      beta.fl.per.head[j,i] ~ dnorm(alpha.fl.per.head, tau.beta)
+      beta.infest[j,i] ~ dnorm(alpha.infest, tau.beta)
+      beta.long[j,i] ~ dnorm(alpha.long, tau.beta)
+      beta.map[j,i] ~ dnorm(alpha.map, tau.beta)
+      beta.seed.mass[j,i] ~ dnorm(alpha.seed.mass, tau.beta)
+    }
+  }
+  for (i in 1:(n.cat-1)) {
+    for (j in 1:n.species) {
+      beta.0[i,j] ~ dnorm(alpha.0[i], tau.species)
+    }
+  }
+  alpha.elev ~ dnorm(0.0, tau.beta)
+  alpha.fecundity ~ dnorm(0.0, tau.beta)
+  alpha.fl.per.head ~ dnorm(0.0, tau.beta)
+  alpha.infest ~ dnorm(0.0, tau.beta)
+  alpha.long ~ dnorm(0.0, tau.beta)
+  alpha.map ~ dnorm(0.0, tau.beta)
+  alpha.seed.mass ~ dnorm(0.0, tau.beta)
+  for (j in 1:(n.cat-1)) {
+    alpha.0[j] ~ dnorm(0.0, tau.species)
+  }
+
+}
