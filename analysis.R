@@ -4,10 +4,12 @@ rm(list=ls())
 options("width"=120)
 
 debug <- FALSE
+exclude.jkr.and.gp2 <- TRUE
+jkr.and.gp2.in.data <- FALSE
 
 ## to seed RNG
 ##
-runif(1) 
+runif(1)
 
 n.poly.cat <- 3
 n.pink.cat <- 5
@@ -177,6 +179,10 @@ intervals <- function(x, prob, type) {
 ##
 color.csv <- read.csv("color.csv", header=TRUE, na.strings=".")
 color.csv <- subset(color.csv, species!="subvestita")
+if (exclude.jkr.and.gp2) {
+  color.csv <- subset(color.csv, site!="JKR")
+  color.csv <- subset(color.csv, site!="GP2")
+}
 color.csv <- drop.levels(color.csv)
 
 species <- color.csv$species
@@ -366,8 +372,15 @@ for (model.file in c("analysis-full.txt")) {
   sink(file=results, split=TRUE)
 
   model <- sub("analysis-", "", model.file)
-  model <- sub(".sxt", "", model.file)
+  model <- sub(".txt", "", model.file)
   cat(model, "\n")
+  if (jkr.and.gp2.in.data) {
+    if (exclude.jkr.and.gp2) {
+      cat("GP2 and JKR excluded from analysis\n")
+    } else {
+      cat("GP2 and JKR included in analysis\n")
+    }
+  }
   DIC <- fit$BUGSoutput$DIC
   pD <- fit$BUGSoutput$pD
   Dbar <- DIC - pD
@@ -381,8 +394,8 @@ for (model.file in c("analysis-full.txt")) {
                     Dhat=Dhat,
                     pD=pD,
                     DIC=DIC)
-  csv <- rbind(csv, tmp)                    
-  
+  csv <- rbind(csv, tmp)
+
   cat("\n\n\n", model.file, "results...")
   print(fit, digits.summary=3)
   cat("\n\n\n")
@@ -390,7 +403,7 @@ for (model.file in c("analysis-full.txt")) {
   intervals(fit, prob=0.95, "HPD")
   intervals(fit, prob=0.90, "symmetric")
   intervals(fit, prob=0.90, "HPD")
-  
+
   cat("\n\n\n")
   source("compare-betas.R")
   compare(fit, prob=0.95)

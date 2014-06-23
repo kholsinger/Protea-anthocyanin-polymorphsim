@@ -3,6 +3,8 @@ require(R2jags)
 rm(list=ls())
 options("width"=120)
 
+ptm <- proc.time()
+
 debug <- FALSE
 
 ## to seed RNG
@@ -11,6 +13,9 @@ runif(1)
 
 n.cat <- 5
 sample.size <- 20
+n.simulations <- 1000
+model.file <- "power-analysis.txt"
+model.file.logistic <- "power-analysis-logistic.txt"
 
 if (debug) {
   n.chains <- 1
@@ -113,12 +118,12 @@ rescale <- function(x) {
 }
 
 printInterval <- function(int, name) {
-  out <- sprintf("%33s  %8.3f %8.3f", name, int[1,1], int[1,2])
-  cat(out)
   if ((int[1,1] > 0) || (int[1,2] < 0)) {
+    out <- sprintf("%33s  %8.3f %8.3f", name, int[1,1], int[1,2])
+    cat(out)
     cat("*")
+    cat("\n")
   }
-  cat("\n")
 }
 
 SYMinterval <- function(x, prob) {
@@ -201,12 +206,42 @@ intervals <- function(x, prob, type) {
         }
       }
     } else {
-      if (type == "symmetric") {
-        sym <- SYMinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
-        printInterval(sym, name)
-      } else if (type == "HPD") {
-        hpd <- HPDinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
-        printInterval(hpd, name)
+      if (name != "deviance") {
+        if (type == "symmetric") {
+          sym <- SYMinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
+          printInterval(sym, name)
+        } else if (type == "HPD") {
+          hpd <- HPDinterval(mcmcUpgrade(as.mcmc(x[[name]])), prob=prob)
+          printInterval(hpd, name)
+        }
+      }
+    }
+  }
+}
+
+logistic.intervals <- function(x, prob, type) {
+  x <- x$BUGSoutput$sims.list
+  out <- sprintf("%2.0f%% %s intervals\n", prob*100, type)
+  cat(out)
+  out <- sprintf("%33s  %8s %8s\n", "Coefficient", "lo", "hi")
+  cat(out)
+  out <- sprintf("%33s  %8s %8s\n",
+                 "---------------------------------",
+                 "-------",
+                 "-------")
+  cat(out)
+  for (name in names(x)) {
+    var <- x[[name]]
+    if (name != "deviance") {
+      for (i in 1:2) {
+        new.name <- paste(name, "[", i, "]", sep="")
+        if (type == "symmetric") {
+          sym <- SYMinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
+          printInterval(sym, new.name)
+        } else if (type == "HPD") {
+          hpd <- HPDinterval(mcmcUpgrade(as.mcmc(var[,i])), prob=prob)
+          printInterval(hpd, new.name)
+        }
       }
     }
   }
@@ -321,20 +356,18 @@ elev <- as.numeric(color$elev)
 ##
 load("results-full.Rsave")
 means <- fit$BUGSoutput$mean
-beta.0 <- colMeans(means$beta.pink.0)
-beta.long <- colMeans(means$beta.pink.long)
-beta.map <- colMeans(means$beta.pink.map)
-beta.elev <- colMeans(means$beta.pink.elev)
-beta.fecundity <- colMeans(means$beta.pink.fecundity)
-beta.fl.per.head <- colMeans(means$beta.pink.fl.per.head)
-beta.seed.mass <- colMeans(means$beta.pink.seed.mass)
-beta.infest <- colMeans(means$beta.pink.infest)
-freq <- predict.pink(species, repens, long, map, elev, fecundity, fl.per.head,
-                     seed.mass, infest,
-                     beta.0, beta.long, beta.map, beta.elev, beta.fecundity,
-                     beta.fl.per.head, beta.seed.mass, beta.infest,
-                     sample.size)
-pink <- get.pink.cat(freq$pink, freq$sample.size)
+## minus because log odds for adjacent categories are
+##
+## exp(-L.pink)
+##
+beta.0 <- -colMeans(means$beta.pink.0)
+beta.long <- -colMeans(means$beta.pink.long)
+beta.map <- -colMeans(means$beta.pink.map)
+beta.elev <- -colMeans(means$beta.pink.elev)
+beta.fecundity <- -colMeans(means$beta.pink.fecundity)
+beta.fl.per.head <- -colMeans(means$beta.pink.fl.per.head)
+beta.seed.mass <- -colMeans(means$beta.pink.seed.mass)
+beta.infest <- -colMeans(means$beta.pink.infest)
 
 species.table <- unique(data.frame(species=color$species,
                                    number=as.numeric(color$species)))
@@ -344,44 +377,37 @@ n.species <- nrow(species.table)
 tau.beta <- 0.1
 tau.species <- 0.1
 
-jags.data <- c("fecundity",
-               "fl.per.head",
-               "seed.mass",
-               "infest",
-               "long",
-               "map",
-               "elev",
-               "pink",
-               "species",
-               "repens",
-               "n.obs",
-               "n.species",
-               "n.cat",
-               "tau.beta",
-               "tau.species")
-jags.parameters <- c("alpha.fecundity",
-                     "alpha.fl.per.head",
-                     "alpha.seed.mass",
-                     "alpha.infest",
-                     "alpha.long",
-                     "alpha.map",
-                     "alpha.elev",
-                     "alpha.0",
-                     "beta.fecundity",
-                     "beta.fl.per.head",
-                     "beta.seed.mass",
-                     "beta.infest",
-                     "beta.long",
-                     "beta.map",
-                     "beta.elev",
-                     "beta.0")
+for (i in 1:n.simulations) {
+  freq <- predict.pink(species, repens, long, map, elev, fecundity, fl.per.head,
+                       seed.mass, infest,
+                       beta.0, beta.long, beta.map, beta.elev, beta.fecundity,
+                       beta.fl.per.head, beta.seed.mass, beta.infest,
+                       sample.size)
+  pink <- get.pink.cat(freq$pink, freq$sample.size)
 
-csv <- data.frame(model=NULL,
-                  Dbar=NULL,
-                  Dhat=NULL,
-                  pD=NULL,
-                  DIC=NULL)
-for (model.file in c("power-analysis.txt")) {
+  jags.data <- c("fecundity",
+                 "fl.per.head",
+                 "seed.mass",
+                 "infest",
+                 "long",
+                 "map",
+                 "elev",
+                 "pink",
+                 "species",
+                 "repens",
+                 "n.obs",
+                 "n.species",
+                 "n.cat",
+                 "tau.beta",
+                 "tau.species")
+  jags.parameters <- c("beta.fecundity",
+                       "beta.fl.per.head",
+                       "beta.seed.mass",
+                       "beta.infest",
+                       "beta.long",
+                       "beta.map",
+                       "beta.elev")
+
   fit <- jags(jags.data,
               inits=NULL,
               parameters=jags.parameters,
@@ -394,42 +420,57 @@ for (model.file in c("power-analysis.txt")) {
   ## split results between terminal and results file
   ##
   results <- sub("power-analysis", "results", model.file)
-  sink(file=results, split=TRUE)
+  sink(file=results, split=TRUE, append=TRUE)
 
-  model <- sub("power-analysis-", "", model.file)
   model <- sub(".txt", "", model.file)
   cat(model, "\n")
-  DIC <- fit$BUGSoutput$DIC
-  pD <- fit$BUGSoutput$pD
-  Dbar <- DIC - pD
-  Dhat <- Dbar - pD
-  cat("  Dbar: ", Dbar, "\n", sep="")
-  cat("  Dhat: ", Dhat, "\n", sep="")
-  cat("    pD: ", pD, "\n", sep="")
-  cat("   DIC: ", DIC, "\n", sep="")
-  tmp <- data.frame(model=model,
-                    Dbar=Dbar,
-                    Dhat=Dhat,
-                    pD=pD,
-                    DIC=DIC)
-  csv <- rbind(csv, tmp)
 
-  cat("\n\n\n", model.file, "results...")
-  print(fit, digits.summary=3)
-  cat("\n\n\n")
-  intervals(fit, prob=0.95, "symmetric")
   intervals(fit, prob=0.95, "HPD")
-  intervals(fit, prob=0.90, "symmetric")
-  intervals(fit, prob=0.90, "HPD")
 
-  cat("\n\n\n")
-  compare.coefficients(fit, prob=0.95)
+  ## close output file
+  ##
+  sink()
 
-  rsave <- paste(sub(".txt", "", model.file), ".Rsave", sep="")
-  rsave <- sub("analysis", "results", rsave)
-  save(fit, species.table, color, unscaled, file=rsave)
+  pink <- freq$pink
+  n.sample <- freq$sample.size
+  jags.data <- c("fecundity",
+                 "fl.per.head",
+                 "seed.mass",
+                 "infest",
+                 "long",
+                 "map",
+                 "elev",
+                 "pink",
+                 "species",
+                 "repens",
+                 "n.obs",
+                 "n.species",
+                 "n.sample",
+                 "tau.beta",
+                 "tau.species")
+  fit <- jags(jags.data,
+              inits=NULL,
+              parameters=jags.parameters,
+              model.file=model.file.logistic,
+              n.chains=n.chains,
+              n.burnin=n.burnin,
+              n.iter=n.iter,
+              n.thin=n.thin)
+
+  ## split results between terminal and results file
+  ##
+  results <- sub("power-analysis", "results", model.file)
+  sink(file=results, split=TRUE, append=TRUE)
+
+  model <- sub(".txt", "", model.file.logistic)
+  cat(model, "\n")
+
+  logistic.intervals(fit, prob=0.95, "HPD")
 
   ## close output file
   ##
   sink()
 }
+
+elapsed <- proc.time() - ptm
+print(elapsed)

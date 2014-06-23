@@ -1,0 +1,30 @@
+model {
+  for (i in 1:n.obs) {
+    ## polymorphism response
+    ##
+    pink[i] ~ dbin(pi[i], n.sample)
+    logit(pi[i]) <- beta.0[species[i]]
+                    + beta.long[repens[i]]*long[i]
+                    + beta.map[repens[i]]*map[i]
+                    + beta.elev[repens[i]]*elev[i]
+                    + beta.fecundity[repens[i]]*fecundity[i]
+                    + beta.fl.per.head[repens[i]]*fl.per.head[i]
+                    + beta.seed.mass[repens[i]]*seed.mass[i]
+                    + beta.infest[repens[i]]*infest[i]
+  }
+
+  ## priors
+  ##
+  for (i in 1:2) {
+    beta.elev[i] ~ dnorm(0.0, tau.beta)
+    beta.fecundity[i] ~ dnorm(0.0, tau.beta)
+    beta.fl.per.head[i] ~ dnorm(0.0, tau.beta)
+    beta.infest[i] ~ dnorm(0.0, tau.beta)
+    beta.long[i] ~ dnorm(0.0, tau.beta)
+    beta.map[i] ~ dnorm(0.0, tau.beta)
+    beta.seed.mass[i] ~ dnorm(0.0, tau.beta)
+  }
+  for (i in 1:n.species) {
+    beta.0[i] ~ dnorm(0.0, tau.species)
+  }
+}

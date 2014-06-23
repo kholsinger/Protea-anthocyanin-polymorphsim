@@ -82,7 +82,7 @@ plot.prediction <- function(beta, species, var) {
   ## get site-specific covariates for species
   ##
   work <- color[color$species==species,]
-  
+
   ## calculate piulative probabilities for each site
   ##
   pi.k <- array(dim=c(nrow(work), n.cat, length(x)))
@@ -90,7 +90,7 @@ plot.prediction <- function(beta, species, var) {
     if (debug && (species == "repens") && (var == "infest")) {
       verbose <- TRUE
       cat("species: ", species, "\n", sep="")
-      cat("work[k,]:\n")    
+      cat("work[k,]:\n")
       print(work[k,])
       cat("beta:\n")
       print(beta)
@@ -116,7 +116,7 @@ plot.prediction <- function(beta, species, var) {
   }
   colnames(pi) <- x
   pi <- data.frame(t(pi))
-  
+
   x.unscaled <- seq(from=min.unscaled, to=max.unscaled,
                     by=(max.unscaled-min.unscaled)/n.pts)
   pi$species <- species
@@ -209,7 +209,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   } else if (var == "fecundity") {
     label <- "Fecundity"
     p <- ggplot(comp, aes(x=fecundity, y=value, fill=variable)) +
@@ -221,7 +221,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   } else if (var == "fl.per.head") {
     label <- "Flowers per head"
     p <- ggplot(comp, aes(x=fl.per.head, y=value, fill=variable)) +
@@ -233,7 +233,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   } else if (var == "infest") {
     label <- "Fraction of heads infested"
     p <- ggplot(comp, aes(x=infest, y=value, fill=variable)) +
@@ -245,7 +245,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   } else if (var == "long") {
     label <- "East longitude"
     p <- ggplot(comp, aes(x=long, y=value, fill=variable)) +
@@ -257,7 +257,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   } else if (var == "map") {
     label <- "Mean annual precipitation"
     p <- ggplot(comp, aes(x=map, y=value, fill=variable)) +
@@ -269,7 +269,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   } else if (var == "seed.mass") {
     label <- "Seed mass"
     p <- ggplot(comp, aes(x=seed.mass, y=value, fill=variable)) +
@@ -281,7 +281,7 @@ plot.var <- function(x, var, model) {
          labs(fill="Color category") +
          geom_segment(mapping=aes(x=x, xend=xend, y=y, yend=yend),
                       data=temp) +
-         facet_wrap(~ species)  
+         facet_wrap(~ species)
   }
   print(p)
 }
@@ -308,6 +308,7 @@ plot.pink.results <- function(x, pdf=TRUE) {
 plot.poly.results <- function(x, pdf=TRUE) {
   var <- c("infest",
            "fl.per.head",
+           "long",
            "seed.mass")
   for (v in var) {
     dev.new()
