@@ -97,9 +97,6 @@ compare <- function(x, prob=0.95) {
   cat("Pink coefficients...\n")
   flush.console()
   cat(compare.pink.coefficients(x, 25000, prob), "\n")
-  cat("Poly coefficients...\n")
-  flush.console()
-  cat(compare.poly.coefficients(x, 25000, prob), "\n")
 }
 
 

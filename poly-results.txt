@@ -1,0 +1,79 @@
+Iterations = 1e+07:109900001
+Thinning interval = 1e+05
+Number of chains = 5
+Sample size per chain = 1000
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                   Mean     SD Naive SE Time-series SE
+(Intercept)     -31.567 157.33   2.2250          7.287
+ele            -119.590  62.87   0.8891          1.312
+ele.range       202.039  92.71   1.3111          2.552
+long            -34.079  72.87   1.0305          1.488
+long.range      -92.190 110.61   1.5642          2.002
+map              20.436  57.70   0.8160          1.037
+map.range       -32.503  82.64   1.1686          1.498
+area             85.695  73.41   1.0382          1.138
+
+2. Quantiles for each variable:
+
+                  2.5%      5%        50%    95%  97.5%
+(Intercept)    -381.85 -299.23  -18.72473 194.52 254.93
+ele            -256.59 -229.11 -112.86422 -31.15 -17.29
+ele.range        48.24   64.38  195.27209 364.54 399.31
+long           -195.51 -161.00  -27.57703  76.35  99.13
+long.range     -310.78 -269.82  -91.90297  92.30 151.64
+map             -86.07  -64.38   15.54447 119.09 149.94
+map.range      -206.22 -171.17  -27.27230  93.94 121.59
+area            -65.42  -38.22   88.84868 198.79 221.43
+
+
+
+
+
+95% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)  -369.492  267.206
+                              ele  -242.201   -7.171
+                        ele.range    36.449  380.835
+                             long  -178.759  110.782
+                       long.range  -325.077  127.196
+                              map   -98.743  135.117
+                        map.range  -201.484  124.766
+                             area   -60.718  225.397
+
+
+
+
+90% HPD intervals
+                      Coefficient        lo       hi
+---------------------------------   -------  -------
+                      (Intercept)  -287.002  203.491
+                              ele  -215.355  -19.565
+                        ele.range    49.628  338.161
+                             long  -149.485   84.823
+                       long.range  -275.314   85.381
+                              map   -74.171  107.630
+                        map.range  -163.531  100.012
+                             area   -27.063  205.056
+
+
+
+
+Potential scale reduction factors:
+
+               Point est. Upper C.I.
+(Intercept)          1.04       1.10
+ele                  1.01       1.04
+ele.range            1.01       1.04
+long                 1.01       1.02
+long.range           1.00       1.01
+map                  1.01       1.02
+map.range            1.00       1.01
+area                 1.00       1.01
+
+Multivariate psrf
+
+1.05

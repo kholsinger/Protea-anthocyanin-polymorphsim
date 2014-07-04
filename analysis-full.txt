@@ -3,39 +3,6 @@ model {
   ## final category as baseline
   ##
   for (i in 1:n.obs) {
-    ## polymorphism response
-    ##
-    poly[i] ~ dcat(pi.poly[i,])
-    ## adjacent categories
-    ##
-    for (j in 1:(n.poly.cat-1)) {
-      L.poly[i,j] <- beta.poly.0[j,species[i]]
-                     + beta.poly.long[j,repens[i]]*long[i]
-                     + beta.poly.map[j,repens[i]]*map[i]
-                     + beta.poly.elev[j,repens[i]]*elev[i]
-                     + beta.poly.fecundity[j,repens[i]]*fecundity[i]
-                     + beta.poly.fl.per.head[j,repens[i]]*fl.per.head[i]
-                     + beta.poly.seed.mass[j,repens[i]]*seed.mass[i]
-                     + beta.poly.infest[j,repens[i]]*infest[i]
-    }
-    ## category 1 through n.cat-2
-    ##
-    for (j in 1:(n.poly.cat-1)) {
-      L.poly.star[i,j] <- sum(L.poly[i,j:(n.poly.cat-1)])
-    }
-    ## exponentiate L.star
-    ##
-    for (j in 1:(n.poly.cat-1)) {
-      phi.poly[i,j] <- exp(L.poly.star[i,j])
-    }
-    phi.poly[i,n.poly.cat] <- 1.0
-    ## convert to probabilities
-    ##
-    sum.phi.poly[i] <- sum(phi.poly[i,])
-    for (j in 1:n.poly.cat) {
-      pi.poly[i,j] <- phi.poly[i,j]/sum.phi.poly[i]
-    }
-
     ## percent pink response
     ##
     pink[i] ~ dcat(pi.pink[i,])
@@ -99,35 +66,6 @@ model {
                         + beta.seed.mass.map[repens[i]]*map[i]
                         + beta.seed.mass.elev[repens[i]]*elev[i]
                         + eps.seed.mass.species[species[i]]
-  }
-
-  ## priors for adjacent-categories logit
-  ##
-  for (i in 1:2) {
-    for (j in 1:(n.poly.cat-1)) {
-      beta.poly.elev[j,i] ~ dnorm(alpha.poly.elev, tau.beta)
-      beta.poly.fecundity[j,i] ~ dnorm(alpha.poly.fecundity, tau.beta)
-      beta.poly.fl.per.head[j,i] ~ dnorm(alpha.poly.fl.per.head, tau.beta)
-      beta.poly.infest[j,i] ~ dnorm(alpha.poly.infest, tau.beta)
-      beta.poly.long[j,i] ~ dnorm(alpha.poly.long, tau.beta)
-      beta.poly.map[j,i] ~ dnorm(alpha.poly.map, tau.beta)
-      beta.poly.seed.mass[j,i] ~ dnorm(alpha.poly.seed.mass, tau.beta)
-    }
-  }
-  for (i in 1:(n.poly.cat-1)) {
-    for (j in 1:n.species) {
-      beta.poly.0[i,j] ~ dnorm(alpha.poly.0[i], tau.species)
-    }
-  }
-  alpha.poly.elev ~ dnorm(0.0, tau.beta)
-  alpha.poly.fecundity ~ dnorm(0.0, tau.beta)
-  alpha.poly.fl.per.head ~ dnorm(0.0, tau.beta)
-  alpha.poly.infest ~ dnorm(0.0, tau.beta)
-  alpha.poly.long ~ dnorm(0.0, tau.beta)
-  alpha.poly.map ~ dnorm(0.0, tau.beta)
-  alpha.poly.seed.mass ~ dnorm(0.0, tau.beta)
-  for (j in 1:(n.poly.cat-1)) {
-    alpha.poly.0[j] ~ dnorm(0.0, tau.species)
   }
 
   ## priors for adjacent-categories logit

@@ -6,6 +6,7 @@ options("width"=120)
 ptm <- proc.time()
 
 debug <- FALSE
+betas.at.zero <- TRUE
 
 ## to seed RNG
 ##
@@ -352,23 +353,6 @@ long <- as.numeric(color$long)
 map <- as.numeric(color$map)
 elev <- as.numeric(color$elev)
 
-## replace observed pink with predicted
-##
-load("results-full.Rsave")
-means <- fit$BUGSoutput$mean
-## minus because log odds for adjacent categories are
-##
-## exp(-L.pink)
-##
-beta.0 <- -colMeans(means$beta.pink.0)
-beta.long <- -colMeans(means$beta.pink.long)
-beta.map <- -colMeans(means$beta.pink.map)
-beta.elev <- -colMeans(means$beta.pink.elev)
-beta.fecundity <- -colMeans(means$beta.pink.fecundity)
-beta.fl.per.head <- -colMeans(means$beta.pink.fl.per.head)
-beta.seed.mass <- -colMeans(means$beta.pink.seed.mass)
-beta.infest <- -colMeans(means$beta.pink.infest)
-
 species.table <- unique(data.frame(species=color$species,
                                    number=as.numeric(color$species)))
 n.obs <- nrow(color)
@@ -376,6 +360,69 @@ n.species <- nrow(species.table)
 
 tau.beta <- 0.1
 tau.species <- 0.1
+
+if (betas.at.zero) {
+  ## checking false positive rate
+  ##
+  beta.0 <- numeric(n.species)
+  for (i in 1:n.species) {
+    beta.0[i] <- 0.0
+  }
+  beta.long <- numeric(2)
+  beta.map <- numeric(2)
+  beta.elev <- numeric(2)
+  beta.fecundity <- numeric(2)
+  beta.fl.per.head <- numeric(2)
+  beta.seed.mass <- numeric(2)
+  beta.infest <- numeric(2)
+  for (i in 1:2) {
+    beta.long[i] <- 0.0
+    beta.map[i] <- 0.0
+    beta.elev[i] <- 0.0
+    beta.fecundity[i] <- 0.0
+    beta.fl.per.head[i] <- 0.0
+    beta.seed.mass[i] <- 0.0
+    beta.infest[i] <- 0.0
+  }
+} else {
+  ## checking power
+  ##
+  ## replace observed pink with predicted
+  ##
+  load("results-full.Rsave")
+  means <- fit$BUGSoutput$mean
+  ## minus because log odds for adjacent categories are
+  ##
+  ## exp(-L.pink)
+  ##
+  beta.0 <- -colMeans(means$beta.pink.0)
+  beta.long <- -colMeans(means$beta.pink.long)
+  beta.map <- -colMeans(means$beta.pink.map)
+  beta.elev <- -colMeans(means$beta.pink.elev)
+  beta.fecundity <- -colMeans(means$beta.pink.fecundity)
+  beta.fl.per.head <- -colMeans(means$beta.pink.fl.per.head)
+  beta.seed.mass <- -colMeans(means$beta.pink.seed.mass)
+  beta.infest <- -colMeans(means$beta.pink.infest)
+}
+
+## split results between terminal and results file
+##
+results <- sub("power-analysis", "results", model.file)
+sink(file=results, split=TRUE, append=TRUE)
+for (i in 1:n.species) {
+  cat("beta.0[", i, "]:           ", round(beta.0[i], 3), "\n", sep="")
+}
+for (i in 1:2) {
+  cat("beta.long[", i, "]:        ", round(beta.long[i], 3), "\n", sep="")
+  cat("beta.map[", i, "]:         ", round(beta.map[i], 3), "\n", sep="")
+  cat("beta.elev[", i, "]:        ", round(beta.elev[i], 3), "\n", sep="")
+  cat("beta.fecundity[", i, "]:   ", round(beta.fecundity[i], 3), "\n", sep="")
+  cat("beta.fl.per.head[", i, "]: ", round(beta.fl.per.head[i], 3), "\n", sep="")
+  cat("beta.seed.mass[", i, "]:   ", round(beta.seed.mass[i], 3), "\n", sep="")
+  cat("beta.infest[", i, "]:      ", round(beta.infest[i], 3), "\n", sep="")
+}
+cat("\n")
+sink()
 
 for (i in 1:n.simulations) {
   freq <- predict.pink(species, repens, long, map, elev, fecundity, fl.per.head,
@@ -419,7 +466,6 @@ for (i in 1:n.simulations) {
 
   ## split results between terminal and results file
   ##
-  results <- sub("power-analysis", "results", model.file)
   sink(file=results, split=TRUE, append=TRUE)
 
   model <- sub(".txt", "", model.file)
@@ -459,7 +505,6 @@ for (i in 1:n.simulations) {
 
   ## split results between terminal and results file
   ##
-  results <- sub("power-analysis", "results", model.file)
   sink(file=results, split=TRUE, append=TRUE)
 
   model <- sub(".txt", "", model.file.logistic)

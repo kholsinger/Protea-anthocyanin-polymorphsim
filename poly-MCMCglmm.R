@@ -5,7 +5,7 @@ library(ape)
 rm(list=ls())
 
 na.strings <- c("NA", ".")
-test <- TRUE
+test <- FALSE
 valente <- TRUE
 
 drop.venusta <- FALSE
@@ -26,6 +26,7 @@ n.iter <- n.burnin + n.sample
 columns <- c("ele",
              "ele.range",
              "long",
+             "long.range",
              "map",
              "map.range",
              "area")
@@ -90,6 +91,7 @@ map <- means$MAP
 map.range <- means$MAP_MAX - means$MAP_MIN
 area <- means$range_area_albers
 long <- means$long
+long.range <- means$Max_long - means$min_long
 animal <-means$animal
 
 ## put variables into new data frame
@@ -101,6 +103,7 @@ tmp <- data.frame(species=species,
                   map.range=map.range,
                   area=area,
                   long=long,
+                  long.range=long.range,
                   animal=animal)
 if (drop.venusta) {
   if (valente) {
@@ -125,6 +128,7 @@ map <- standardize(tmp$map)
 map.range <- standardize(tmp$map.range)
 area <- standardize(tmp$area)
 long <- standardize(tmp$long)
+long.range <- standardize(tmp$long.range)
 
 tmp <- data.frame(species=species,
                   poly=poly,
@@ -134,6 +138,7 @@ tmp <- data.frame(species=species,
                   map.range=map.range,
                   area=area,
                   long=long,
+                  long.range=long.range,
                   animal=animal)
 fitted.data <- tmp
 
@@ -163,7 +168,8 @@ results.deviance <- matrix(nrow=n.reps, ncol=n.sample/n.thin)
 for (i in 1:n.reps) {
   cat("rep", i, "\n")
   flush.console()
-  results <- MCMCglmm(poly ~ ele + ele.range + long + map + map.range + area,
+  results <- MCMCglmm(poly ~ ele + ele.range + long + long.range +
+                             map + map.range + area,
                       random = ~ animal,
                       data=tmp,
                       prior=prior,

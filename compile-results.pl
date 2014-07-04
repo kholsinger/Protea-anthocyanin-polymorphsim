@@ -17,7 +17,7 @@ while (<INFILE>) {
   } elsif (/^power-analysis-logistic\s*$/) {
     $analysis = "Logistic";
   }
-  if (/beta/) {
+  if (/^\s+beta/) {
     chomp;
     my $coeff = $_;
     $coeff =~ s/^\s*beta\.(.*)\[.+$/$1/;
@@ -36,11 +36,13 @@ foreach my $beta (sort keys %tabulate) {
   }
 }
 
+$ct += 1;   # since counting started at 0
+print "Total number of simulations: $ct\n\n";
+
 my ($coeff, $categorical, $logistic);
 foreach $coeff (sort keys %sum) {
   $categorical = $sum{$coeff}{"Categorical"};
   $logistic = $sum{$coeff}{"Logistic"};
-#  print "$coeff $categorical $logistic\n";
   write;
 }
 
