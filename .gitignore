@@ -24,5 +24,9 @@ script.txt
 *.pdf
 *.xlsx
 *.docx
+# results.txt is renamed manually after analyses to
+# reflect analysis from which it is derived
+results.txt
+
 
 
