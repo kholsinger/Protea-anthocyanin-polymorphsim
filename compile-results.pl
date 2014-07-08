@@ -5,8 +5,13 @@ use strict;
 use constant FALSE => 0;
 use constant TRUE => 1;
 
-open(INFILE, "<results.txt") or
-  die "Could not open results.txt: $!";
+my $infile = shift;
+if (!$infile) {
+  $infile = "results.txt";
+}
+
+open(INFILE, "<$infile") or
+  die "Could not open $infile: $!";
 my $analysis;
 my %tabulate;
 my $ct = -1;
@@ -20,7 +25,10 @@ while (<INFILE>) {
   if (/^\s+beta/) {
     chomp;
     my $coeff = $_;
-    $coeff =~ s/^\s*beta\.(.*)\[.+$/$1/;
+    $coeff =~ s/^\s*beta\.(.*)\[(.*)\].+$/$1\[$2\]/;
+    if ($coeff =~ m/,/) {
+      $coeff =~ s/\[.*,(.*)\]/[$1]/;
+    }
     $tabulate{$coeff}{$analysis}{$ct} = 1;
   }
 }
@@ -47,12 +55,12 @@ foreach $coeff (sort keys %sum) {
 }
 
 format STDOUT_TOP =
-                    Analysis
-Coefficient  Categorical  Logistic
------------  -----------  --------
+                       Analysis
+   Coefficient  Categorical  Logistic
+   -----------  -----------  --------
 .
 
 format STDOUT =
-@>>>>>>>>>>  @##########  @#######
+@>>>>>>>>>>>>>  @##########  @#######
 $coeff,      $categorical, $logistic
 .

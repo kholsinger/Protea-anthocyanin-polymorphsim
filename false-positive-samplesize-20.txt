@@ -1,0 +1,17 @@
+Total number of simulations: 1000
+
+                       Analysis
+   Coefficient  Categorical  Logistic
+   -----------  -----------  --------
+       elev[1]            0         4
+       elev[2]            0        51
+  fecundity[2]            0        57
+fl.per.head[1]            0         9
+fl.per.head[2]            0        58
+     infest[1]            0        19
+     infest[2]            0        58
+       long[2]            1        62
+        map[1]            0        12
+        map[2]            1        52
+  seed.mass[1]            0         3
+  seed.mass[2]            0        55
