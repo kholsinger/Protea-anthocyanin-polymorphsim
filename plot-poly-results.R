@@ -29,6 +29,7 @@ get.probability <- function(scaled, beta, var, x, species) {
     for (v in c("ele",
                 "ele.range",
                 "long",
+                "long.range",
                 "map",
                 "map.range",
                 "area")) {
@@ -70,7 +71,7 @@ plot.prediction <- function(beta, scaled, unscaled, var, species) {
   for (j in 1:length(x)) {
     pi[j] <- mean(pi.k[,j])
   }
-  
+
   x.unscaled <- seq(from=min.unscaled, to=max.unscaled,
                     by=(max.unscaled-min.unscaled)/n.pts)
 
@@ -90,6 +91,7 @@ plot.poly.results <- function(x, scaled, unscaled, pdf=TRUE) {
   beta.ele <- numeric(0)
   beta.ele.range <- numeric(0)
   beta.long <- numeric(0)
+  beta.long.range <- numeric(0)
   beta.map <- numeric(0)
   beta.map.range <- numeric(0)
   beta.area <- numeric(0)
@@ -98,9 +100,10 @@ plot.poly.results <- function(x, scaled, unscaled, pdf=TRUE) {
     beta.ele <- c(beta.ele, x[[i]][,2])
     beta.ele.range <- c(beta.ele.range, x[[i]][,3])
     beta.long <- c(beta.long, x[[i]][,4])
-    beta.map <- c(beta.map, x[[i]][,5])
-    beta.map.range <- c(beta.map.range, x[[i]][,6])
-    beta.area <- c(beta.area, x[[i]][,7])
+    beta.long.range <- c(beta.long.range, x[[i]][,5])
+    beta.map <- c(beta.map, x[[i]][,6])
+    beta.map.range <- c(beta.map.range, x[[i]][,7])
+    beta.area <- c(beta.area, x[[i]][,8])
   }
   ## get posterior mean for all coefficients in the model and
   ## put them in a data frame
@@ -109,6 +112,7 @@ plot.poly.results <- function(x, scaled, unscaled, pdf=TRUE) {
                      beta.ele=mean(beta.ele),
                      beta.ele.range=mean(beta.ele.range),
                      beta.long=mean(beta.long),
+                     beta.long.range=mean(beta.long.range),
                      beta.map=mean(beta.map),
                      beta.map.range=mean(beta.map.range),
                      beta.area=mean(beta.area))
@@ -120,7 +124,7 @@ plot.poly.results <- function(x, scaled, unscaled, pdf=TRUE) {
     species[i] <- list.mean(x[,i])
   }
   species.names <- substring(colnames(results.mcmc[[1]])[idx], 8)
-  names(species) <- c(rep("",29), species.names)
+  names(species) <- c(rep("",min(idx)-1), species.names)
   ## loop through each covariate and produce a plot
   ##
   idx <- grep("animal", colnames(results.mcmc[[1]]), invert=TRUE)[-1]
@@ -132,6 +136,8 @@ plot.poly.results <- function(x, scaled, unscaled, pdf=TRUE) {
       label <- "Elevation range"
     } else if (v == "long") {
       label <- "Longitude"
+    } else if (v == "long.range") {
+      label <- "Longitudinal range"
     } else if (v == "map") {
       label <- "Mean annual precipitation"
     } else if (v == "map.range") {
@@ -139,6 +145,7 @@ plot.poly.results <- function(x, scaled, unscaled, pdf=TRUE) {
     } else if (v == "area") {
       label <- "Geographical range area"
     } else {
+      cat(v, "\n")
       stop("Should never get here")
     }
     comp <- plot.prediction(beta,
